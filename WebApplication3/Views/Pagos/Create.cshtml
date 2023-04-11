@@ -1,0 +1,83 @@
+﻿@using cuentasPorCobrar.Models;
+@model cuentasPorCobrar.Models.Pagos
+
+
+
+
+@{
+    ProyectoContext proyectoContext = new ProyectoContext();
+    List<Prestamo> prestamos = new List<Prestamo>();
+    List<SolicitudPagos> solicitudes = proyectoContext.getSolicitudesPagos();
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+   List<SelectListItem> itemsPrestamos = prestamos.Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.descripcion }).ToList();
+}
+
+<h1>Create</h1>
+
+<h4>Pagos</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label  class="control-label">Cliente</label>
+                <select class="form-control" id="clientes"  >
+                    <option>Seleccione un cliente</option>
+                    @foreach(var item in solicitudes)
+                    {
+                        <option value="@item.Id">@item.nombreCliente</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IDprestamo" class="control-label">Prestamo</label>
+                <!--<input asp-for="IDprestamo" class="form-control" /> -->
+                @Html.DropDownList("IDprestamo",
+                itemsPrestamos,
+                "Seleccione un prestamo",
+                new { @class = "form-control" })
+
+                <span asp-validation-for="IDprestamo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="fecha_pago" class="control-label"></label>
+                <input asp-for="fecha_pago" class="form-control" />
+                <span asp-validation-for="fecha_pago" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="monto" class="control-label"></label>
+                <input asp-for="monto" class="form-control" />
+                <span asp-validation-for="monto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            $("#clientes").change(function () {
+                $.get("/Pagos/getPrestamos", { Id: $("#clientes").val() }, function (data) {
+                    // VACIAMOS EL DropDownList
+                    $("#IDprestamo").empty();
+                    // AÑADIMOS UN NUEVO label CON EL NOMBRE DEL ELEMENTO SELECCIONADO
+                    $("#IDprestamo").append("<option value> -- Seleccionar prestamos de " + $("#clientes option:selected").text() + " --</option>")
+                    // CONSTRUIMOS EL DropDownList A PARTIR DEL RESULTADO Json (data)
+                    $.each(data, function (index, row) {
+                        $("#IDprestamo").append("<option value='" + row.Id + "'>" + row.descripcion + "</option>")
+                    });
+                });
+            });
+        });
+    </script>
+}
