@@ -5,10 +5,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Solicitudes de Prestamo</h1>
+<h1>Solicitudes</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Crear Nueva Solicitud</a>
 </p>
 <table class="table">
     <thead>
@@ -17,8 +17,15 @@
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.fecha_solicitud)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.monto)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.clienteId)
+            </th>
+            
             <th></th>
         </tr>
     </thead>
@@ -29,12 +36,19 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.fecha_solicitud)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.monto)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.DisplayFor(modelItem => item.clienteId)
+            </td>
+            
+            <td>
+                @Html.ActionLink("Editar", "Edit", new {  id=item.Id  }) |
+                @Html.ActionLink("Detalles", "Details", new {  id=item.Id  }) |
+                @Html.ActionLink("Borrar", "Delete", new {  id=item.Id  })
             </td>
         </tr>
 }

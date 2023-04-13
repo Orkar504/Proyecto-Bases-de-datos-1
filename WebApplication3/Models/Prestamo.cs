@@ -29,7 +29,7 @@ namespace cuentasPorCobrar.Models
         [MaxLength(50,ErrorMessage ="Este campo no debe tener mas de 50 caracteres.")]
         public String Periodo_pago { get; set; }
         [Required]
-        [MaxLength(25, ErrorMessage = "Este campo no debe tener mas de 25 caracteres.")]
+        [MaxLength(255, ErrorMessage = "Este campo no debe tener mas de 255 caracteres.")]
         public String descripcion { get; set; }
         [Required]
         public int estado { get; set; }

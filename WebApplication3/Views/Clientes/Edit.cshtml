@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<h1>Editar</h1>
 
 <h4>Cliente</h4>
 <hr />
@@ -19,14 +19,64 @@
                 <span asp-validation-for="Id" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="tipo_identificacion" class="control-label"></label>
+                <input asp-for="tipo_identificacion" class="form-control" />
+                <span asp-validation-for="tipo_identificacion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Direccion" class="control-label"></label>
+                <input asp-for="Direccion" class="form-control" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="estado_civil" class="control-label"></label>
+                <input asp-for="estado_civil" class="form-control" />
+                <span asp-validation-for="estado_civil" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="genero" class="control-label"></label>
+                <input asp-for="genero" class="form-control" />
+                <span asp-validation-for="genero" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="num_identificacion" class="control-label"></label>
+                <input asp-for="num_identificacion" class="form-control" />
+                <span asp-validation-for="num_identificacion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Nombres" class="control-label"></label>
                 <input asp-for="Nombres" class="form-control" />
                 <span asp-validation-for="Nombres" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Apellidos" class="control-label"></label>
+                <input asp-for="Apellidos" class="form-control" />
+                <span asp-validation-for="Apellidos" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="fecha_nacimiento" class="control-label"></label>
+                <input asp-for="fecha_nacimiento" class="form-control" />
+                <span asp-validation-for="fecha_nacimiento" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="telefono" class="control-label"></label>
+                <input asp-for="telefono" class="form-control" />
+                <span asp-validation-for="telefono" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ocupacion" class="control-label"></label>
+                <input asp-for="ocupacion" class="form-control" />
+                <span asp-validation-for="ocupacion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ingresos" class="control-label"></label>
+                <input asp-for="ingresos" class="form-control" />
+                <span asp-validation-for="ingresos" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

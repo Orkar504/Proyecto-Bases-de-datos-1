@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CuentasPorCobrar.Models;
+using cuentasPorCobrar.Models;
 
 namespace CuentasPorCobrar.Controllers
 {
@@ -17,8 +18,7 @@ namespace CuentasPorCobrar.Controllers
         // GET: ClientesController/Details/5
         public ActionResult Details(int id)
         {
-            Cliente cliente = proyectoContext.GetCliente(id);
-            return View(cliente);
+            return View(proyectoContext.GetDetalleClientes(id));
         }
 
         // GET: ClientesController/Create
@@ -27,14 +27,14 @@ namespace CuentasPorCobrar.Controllers
             return View();
         }
 
-        // POST: ClientesController/Create
+        // POST: EstadoCivilController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Cliente cliente)
         {
             try
             {
-                Cliente clienteAgregado = proyectoContext.agregarCliente(cliente);
+                proyectoContext.CreateClientes(cliente);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -43,24 +43,21 @@ namespace CuentasPorCobrar.Controllers
             }
         }
 
+
         // GET: ClientesController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View(new Cliente()
-            {
-                Id = 1,
-                Nombres = "",
-                Email = "Correo Electronico"
-            });
+            return View(proyectoContext.GetDetalleClientes(id));
         }
 
         // POST: ClientesController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Cliente cliente)
         {
             try
             {
+                proyectoContext.UpdateClientes(cliente);
                 return RedirectToAction(nameof(Index));
             }
             catch

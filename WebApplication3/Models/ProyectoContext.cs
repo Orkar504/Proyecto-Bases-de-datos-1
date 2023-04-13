@@ -26,9 +26,9 @@ namespace CuentasPorCobrar.Models
 
             return conexion;
         }
-        
 
-        // funciones para cliente
+        //**************************CLIENTES****************************************//
+        // funciones LISTAR para cliente
         public List<Cliente> GetClientes()
         {
             List<Cliente> clientes = new List<Cliente>();
@@ -41,7 +41,7 @@ namespace CuentasPorCobrar.Models
                 connection.Open();
 
                 // Crear la consulta SQL
-                string sql = "SELECT clienteID, p_nombre, correo FROM clientes";
+                string sql = "SELECT clienteID, tipo_identificacionId, direccionId, estado_civilId, generoId, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, telefono, correo, ocupacion, ingreso_mensual FROM clientes";
 
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(sql, connection);
@@ -55,8 +55,18 @@ namespace CuentasPorCobrar.Models
                     Cliente cliente = new Cliente();
                     // Obtener los valores de las columnas de la tabla
                     cliente.Id = reader.GetInt16(0);
-                    cliente.Nombres = reader.GetString(1);
-                    cliente.Email = reader.GetString(2);
+                    cliente.tipo_identificacion = reader.GetInt16(1);
+                    cliente.Direccion = reader.GetInt16(2);
+                    cliente.estado_civil = reader.GetInt16(3);
+                    cliente.genero = reader.GetInt16(4);
+                    cliente.num_identificacion = reader.GetString(5);
+                    cliente.Nombres = reader.GetString(6);
+                    cliente.Apellidos = reader.GetString(7);
+                    cliente.fecha_nacimiento = reader.GetDateTime(8).ToString("yyyy-MM-dd");
+                    cliente.telefono = reader.GetString(9);
+                    cliente.Email = reader.GetString(10);
+                    cliente.ocupacion = reader.GetString(11);
+                    cliente.ingresos = reader.GetDecimal(12);
 
 
 
@@ -79,7 +89,8 @@ namespace CuentasPorCobrar.Models
             return clientes;
         }
 
-        public Cliente GetCliente(int Id)
+        //Función Detalle Clientes
+        public Cliente GetDetalleClientes(int id)
         {
             Cliente cliente = new Cliente();
 
@@ -91,7 +102,7 @@ namespace CuentasPorCobrar.Models
                 connection.Open();
 
                 // Crear la consulta SQL
-                string sql = "SELECT id_cliente, nombre_cliente, correo_electronico FROM clientes where id_cliente = "+Id;
+                string sql = "SELECT clienteID, tipo_identificacionId, direccionId, estado_civilId, generoId, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, telefono, correo, ocupacion, ingreso_mensual FROM clientes WHERE clienteID=" + id;
 
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(sql, connection);
@@ -102,10 +113,23 @@ namespace CuentasPorCobrar.Models
                 // Recorrer los resultados de la consulta
                 while (reader.Read())
                 {
+
                     // Obtener los valores de las columnas de la tabla
                     cliente.Id = reader.GetInt16(0);
-                    cliente.Nombres = reader.GetString(1);
-                    cliente.Email = reader.GetString(2);
+                    cliente.tipo_identificacion = reader.GetInt16(1);
+                    cliente.Direccion = reader.GetInt16(2);
+                    cliente.estado_civil = reader.GetInt16(3);
+                    cliente.genero = reader.GetInt16(4);
+                    cliente.num_identificacion = reader.GetString(5);
+                    cliente.Nombres = reader.GetString(6);
+                    cliente.Apellidos = reader.GetString(7);
+                    cliente.fecha_nacimiento = reader.GetDateTime(8).ToString("yyyy-MM-dd");
+                    cliente.telefono = reader.GetString(9);
+                    cliente.Email = reader.GetString(10);
+                    cliente.ocupacion = reader.GetString(11);
+                    cliente.ingresos = reader.GetDecimal(12);
+
+
                     // ...
                 }
 
@@ -124,23 +148,44 @@ namespace CuentasPorCobrar.Models
             return cliente;
         }
 
-        public Cliente agregarCliente(Cliente cliente)
+
+        //Función para Actualizar clientes
+
+        public bool UpdateClientes(Cliente cliente)
         {
+            bool retorno = false;
 
             MySqlConnection connection = ObtenerConexion();
-
+            StringBuilder query = new StringBuilder();
             try
             {
                 // Abrir la conexión
                 connection.Open();
 
                 // Crear la consulta SQL
-                string sql = "INSERT INTO clientes VALUES ("+cliente.Id+",2,'00000000000','"+cliente.Nombres+"','1986-01-01',1,'"+cliente.Email+"')";
 
+                query.Append("UPDATE clientes SET  ");
+                query.Append(string.Format("clienteID = {0} ,                              ", cliente.Id));
+                query.Append(string.Format("tipo_identificacionId = {0} ,                  ", cliente.tipo_identificacion));
+                query.Append(string.Format("direccionId = {0} ,                            ", cliente.Direccion));
+                query.Append(string.Format("estado_civilId = {0} ,                         ", cliente.estado_civil));
+                query.Append(string.Format("generoId = {0} ,                               ", cliente.genero));
+                query.Append(string.Format("num_identificacion = {0} ,                     ", cliente.num_identificacion));
+                query.Append(string.Format("p_nombre = '{0}' ,                             ", cliente.Nombres));
+                query.Append(string.Format("p_apellido = '{0}' ,                           ", cliente.Apellidos));
+                query.Append(string.Format("fecha_nacimiento = '{0}' ,                     ", cliente.fecha_nacimiento));
+                query.Append(string.Format("telefono = {0} ,                               ", cliente.telefono));
+                query.Append(string.Format("correo = '{0}' ,                               ", cliente.Email));
+                query.Append(string.Format("ocupacion = '{0}' ,                            ", cliente.ocupacion));
+                query.Append(string.Format("ingreso_mensual = {0}                          ", cliente.ingresos));
+                query.Append(string.Format("WHERE clienteID = {0}                        ", cliente.Id));
                 // Crear un objeto MySqlCommand
-                MySqlCommand command = new MySqlCommand(sql, connection);
-                               
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
+                retorno = afectados > 0;
+
 
             }
             catch (MySqlException ex)
@@ -151,9 +196,109 @@ namespace CuentasPorCobrar.Models
             // Cerrar la conexión
             connection.Close();
 
-            return cliente;
+            return retorno;
         }
 
+
+        //Función para Crear Clientes
+        public bool CreateClientes(Cliente cliente)
+        {
+            bool retorno = false;
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("INSERT INTO clientes                        ");
+                query.Append("(clienteID,                                 ");
+                query.Append("tipo_identificacionId,                      ");
+                query.Append("direccionId,                                ");
+                query.Append("estado_civilId,                             ");
+                query.Append("generoId,                                   ");
+                query.Append("num_identificacion,                         ");
+                query.Append("p_nombre,                                   ");
+                query.Append("p_apellido,                                 ");
+                query.Append("fecha_nacimiento,                           ");
+                query.Append("telefono,                                   ");
+                query.Append("correo,                                     ");
+                query.Append("ocupacion,                                  ");
+                query.Append("ingreso_mensual)                            ");
+                query.Append("VALUES                                      ");
+                query.Append(string.Format("({0} ,    ","null"));
+                query.Append(string.Format("{0} ,     ", cliente.tipo_identificacion));
+                query.Append(string.Format("{0} ,     ", cliente.Direccion));
+                query.Append(string.Format("{0} ,     ", cliente.estado_civil));
+                query.Append(string.Format("{0} ,     ", cliente.genero));
+                query.Append(string.Format("'{0}' ,   ", cliente.num_identificacion));
+                query.Append(string.Format("'{0}' ,   ", cliente.Nombres));
+                query.Append(string.Format("'{0}' ,   ", cliente.Apellidos));
+                query.Append(string.Format("'{0}' ,   ", cliente.fecha_nacimiento));
+                query.Append(string.Format("'{0}' ,   ", cliente.telefono));
+                query.Append(string.Format("'{0}' ,   ", cliente.Email));
+                query.Append(string.Format("'{0}' ,   ", cliente.ocupacion));
+                query.Append(string.Format("{0} )     ", cliente.ingresos));
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        //Función para Eliminar Clientes
+        public bool DeleteClientes(int id)
+        {
+            bool retorno = false;
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                //query.Append("DELETE FROM prestamo WHERE  IDprestamo= "+id);
+                query.Append("update  solicitud_prestamo set estadoId = 1 WHERE  solicitud_ID = " + id);
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        //*************************************************************************//
 
         // funciones para Empleados
         public List<Empleado> GetEmpleados()
@@ -204,8 +349,8 @@ namespace CuentasPorCobrar.Models
             return Empleado;
         }
 
-
-        // funciones para Solicitud
+//===============Solicitudes====================================//
+        // funciones para lISTAR Solicitud
         public List<Solicitud> GetSolicitud()
         {
             List<Solicitud> Solicitud = new List<Solicitud>();
@@ -218,7 +363,7 @@ namespace CuentasPorCobrar.Models
                 connection.Open();
 
                 // Crear la consulta SQL
-                string sql = "SELECT solicitud_ID, monto_prestamo FROM solicitud_prestamo";
+                string sql = "SELECT solicitud_ID, fecha_solicitud, monto_prestamo, clienteID, estadoId FROM solicitud_prestamo WHERE estadoId = 2 ORDER BY solicitud_ID DESC";
 
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(sql, connection);
@@ -232,7 +377,10 @@ namespace CuentasPorCobrar.Models
                     Solicitud solicitud = new Solicitud();
                     // Obtener los valores de las columnas de la tabla
                     solicitud.Id = reader.GetInt16(0);
-                    solicitud.monto = reader.GetDecimal(1);
+                    solicitud.fecha_solicitud = reader.GetDateTime(1).ToString("yyyy-MM-dd");
+                    solicitud.monto = reader.GetDecimal(2);
+                    solicitud.clienteId = reader.GetInt16(3);
+                    solicitud.estado_solicitud = reader.GetInt16(4);
 
                     Solicitud.Add(solicitud);
                     // ...
@@ -253,6 +401,178 @@ namespace CuentasPorCobrar.Models
             return Solicitud;
         }
 
+        //Función Detalle para Solicitud
+        public Solicitud GetDetalleSolicitud(int id)
+        {
+            Solicitud solicitud = new Solicitud();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT solicitud_ID, fecha_solicitud, monto_prestamo, clienteID, estadoId FROM solicitud_prestamo WHERE solicitud_ID=" + id;
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+
+                    // Obtener los valores de las columnas de la tabla
+                    solicitud.Id = reader.GetInt16(0);
+                    solicitud.fecha_solicitud = reader.GetDateTime(1).ToString("yyyy-MM-dd");
+                    solicitud.monto = reader.GetDecimal(2);
+                    solicitud.clienteId = reader.GetInt16(3);
+                    solicitud.estado_solicitud = reader.GetInt16(4);
+
+
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return solicitud;
+        }
+
+        //Función para ACTUALIZAR solicitudes
+        public bool UpdateSolicitud(Solicitud solicitud)
+        {
+            bool retorno = false;
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("UPDATE solicitud_prestamo SET ");
+                query.Append(string.Format("solicitud_ID = {0} , ", solicitud.Id));
+                query.Append(string.Format("fecha_solicitud = '{0}' , ", solicitud.fecha_solicitud));
+                query.Append(string.Format("monto_prestamo = {0} , ", solicitud.monto));
+                query.Append(string.Format("clienteID = {0}  ", solicitud.clienteId));
+                query.Append(string.Format("WHERE solicitud_ID = {0} ", solicitud.Id));
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        //Función para ELIMINAR solicitud
+        public bool DeleteSolicitud(int id)
+        {
+            bool retorno = false;
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                //query.Append("DELETE FROM prestamo WHERE  IDprestamo= "+id);
+                query.Append("update  solicitud_prestamo set estadoId = 1 WHERE  solicitud_ID = " + id);
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        //Función para CREAR solicitud
+        public bool CreateSolicitud(Solicitud solicitud)
+        {
+            bool retorno = false;
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("INSERT INTO solicitud_prestamo ");
+                query.Append("(solicitud_ID, ");
+                query.Append("fecha_solicitud, ");
+                query.Append("monto_prestamo,        ");
+                query.Append("clienteID, estadoId  ) ");
+                query.Append("VALUES          ");
+                query.Append(string.Format("({0} ,    ", "null"));
+                query.Append(string.Format("'{0}',       ", solicitud.fecha_solicitud));
+                query.Append(string.Format("{0} ,        ", solicitud.monto));
+                query.Append(string.Format("{0},{1} )   ", solicitud.clienteId, solicitud.estado_solicitud));
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        //=======================================================//
         // Función Detalles para Prestamos
         public Prestamo GetDetallePrestamo(int id)
         {
@@ -310,7 +630,6 @@ namespace CuentasPorCobrar.Models
             return prestamo;
         }
 
-
         // funciones para Listar Prestamos
         public List<Prestamo> GetPrestamos()
         {
@@ -367,6 +686,7 @@ namespace CuentasPorCobrar.Models
 
             return Prestamo;
         }
+
         // funciones para Listar Prestamos por solicitud
         public List<Prestamo> GetPrestamosPorSolicitud(int idSolicitud)
         {
@@ -615,7 +935,6 @@ namespace CuentasPorCobrar.Models
             return retorno;
         }
         
-
 //**************************PAGOS**************************************//
         // funciones para Listar Pagos
         public List<Pagos> GetPagos()
@@ -718,7 +1037,6 @@ namespace CuentasPorCobrar.Models
 
             return pagos;
         }
-
 
         //Funciones para Actualizar Pagos
         public bool UpdatePagos(Pagos pagos)
@@ -843,3 +1161,5 @@ namespace CuentasPorCobrar.Models
         //********************************************************************//
     }
 }
+
+
