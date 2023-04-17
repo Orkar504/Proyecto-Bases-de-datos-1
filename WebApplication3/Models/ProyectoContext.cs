@@ -1,6 +1,7 @@
 ﻿using cuentasPorCobrar.Models;
 using MySql.Data.MySqlClient;
 using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CuentasPorCobrar.Models
 {
@@ -27,7 +28,7 @@ namespace CuentasPorCobrar.Models
             return conexion;
         }
 
-        //**************************CLIENTES****************************************//
+//**************************CLIENTES****************************************//
         // funciones LISTAR para cliente
         public List<Cliente> GetClientes()
         {
@@ -41,7 +42,7 @@ namespace CuentasPorCobrar.Models
                 connection.Open();
 
                 // Crear la consulta SQL
-                string sql = "SELECT clienteID, tipo_identificacionId, direccionId, estado_civilId, generoId, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, telefono, correo, ocupacion, ingreso_mensual FROM clientes";
+                string sql = "SELECT clienteID, tipo_identificacionId, direccionId, estado_civilId, generoId, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, telefono, correo, ocupacion, ingreso_mensual FROM clientes WHERE estado_RegistroClientesId = 1 ORDER BY clienteID DESC";
 
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(sql, connection);
@@ -59,6 +60,76 @@ namespace CuentasPorCobrar.Models
                     cliente.Direccion = reader.GetInt16(2);
                     cliente.estado_civil = reader.GetInt16(3);
                     cliente.genero = reader.GetInt16(4);
+                    cliente.num_identificacion = reader.GetString(5);
+                    cliente.Nombres = reader.GetString(6);
+                    cliente.Apellidos = reader.GetString(7);
+                    cliente.fecha_nacimiento = reader.GetDateTime(8).ToString("yyyy-MM-dd");
+                    cliente.telefono = reader.GetString(9);
+                    cliente.Email = reader.GetString(10);
+                    cliente.ocupacion = reader.GetString(11);
+                    cliente.ingresos = reader.GetDecimal(12);
+
+
+
+                    clientes.Add(cliente);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return clientes;
+        }
+
+        public List<ClienteList> GetClientesList()
+        {
+            List<ClienteList> clientes = new List<ClienteList>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT distinct c.clienteID, ti.nom_tipoIdentificacion, '' dir, ec.nombre, g.nom_genero, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, telefono, correo, ocupacion, ingreso_mensual " +
+                    "FROM clientes c " +
+                    "left join direccion d " +
+                    "on c.clienteID = d.clienteId " +
+                    "inner join tipo_identificacion ti " +
+                    "on c.tipo_identificacionId = ti.tipo_identificacionId " +
+                    "inner join genero g " +
+                    "on c.generoId = g.generoId " +
+                    "inner join estado_civil ec " +
+                    "on c.estado_civilId = ec.estado_civilId " +
+                    "WHERE estado_RegistroClientesId = 1 ORDER BY clienteID DESC";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    ClienteList cliente = new ClienteList();
+                    // Obtener los valores de las columnas de la tabla
+                    cliente.Id = reader.GetInt16(0);
+                    cliente.tipo_identificacion = reader.GetString(1);
+                    cliente.Direccion = reader.GetString(2);
+                    cliente.estado_civil = reader.GetString(3);
+                    cliente.genero = reader.GetString(4);
                     cliente.num_identificacion = reader.GetString(5);
                     cliente.Nombres = reader.GetString(6);
                     cliente.Apellidos = reader.GetString(7);
@@ -148,9 +219,75 @@ namespace CuentasPorCobrar.Models
             return cliente;
         }
 
+        public ClienteList GetDetalleClientesList(int id)
+        {
+            ClienteList cliente = new ClienteList();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT distinct c.clienteID, ti.nom_tipoIdentificacion, ifnull(d.calle, '') dir, ec.nombre, g.nom_genero, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, telefono, correo, ocupacion, ingreso_mensual " +
+                    "FROM clientes c " +
+                    "left join direccion d " +
+                    "on c.clienteID = d.clienteId " +
+                    "inner join tipo_identificacion ti " +
+                    "on c.tipo_identificacionId = ti.tipo_identificacionId " +
+                    "inner join genero g " +
+                    "on c.generoId = g.generoId " +
+                    "inner join estado_civil ec " +
+                    "on c.estado_civilId = ec.estado_civilId " +
+                    "WHERE c.clienteID = " + id;
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+
+                    // Obtener los valores de las columnas de la tabla
+                    cliente.Id = reader.GetInt16(0);
+                    cliente.tipo_identificacion = reader.GetString(1);
+                    cliente.Direccion = reader.GetString(2);
+                    cliente.estado_civil = reader.GetString(3);
+                    cliente.genero = reader.GetString(4);
+                    cliente.num_identificacion = reader.GetString(5);
+                    cliente.Nombres = reader.GetString(6);
+                    cliente.Apellidos = reader.GetString(7);
+                    cliente.fecha_nacimiento = reader.GetDateTime(8).ToString("yyyy-MM-dd");
+                    cliente.telefono = reader.GetString(9);
+                    cliente.Email = reader.GetString(10);
+                    cliente.ocupacion = reader.GetString(11);
+                    cliente.ingresos = reader.GetDecimal(12);
+
+
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return cliente;
+        }
 
         //Función para Actualizar clientes
-
         public bool UpdateClientes(Cliente cliente)
         {
             bool retorno = false;
@@ -199,7 +336,6 @@ namespace CuentasPorCobrar.Models
             return retorno;
         }
 
-
         //Función para Crear Clientes
         public bool CreateClientes(Cliente cliente)
         {
@@ -227,7 +363,7 @@ namespace CuentasPorCobrar.Models
                 query.Append("telefono,                                   ");
                 query.Append("correo,                                     ");
                 query.Append("ocupacion,                                  ");
-                query.Append("ingreso_mensual)                            ");
+                query.Append("ingreso_mensual, estado_RegistroClientesId) ");
                 query.Append("VALUES                                      ");
                 query.Append(string.Format("({0} ,    ","null"));
                 query.Append(string.Format("{0} ,     ", cliente.tipo_identificacion));
@@ -241,7 +377,7 @@ namespace CuentasPorCobrar.Models
                 query.Append(string.Format("'{0}' ,   ", cliente.telefono));
                 query.Append(string.Format("'{0}' ,   ", cliente.Email));
                 query.Append(string.Format("'{0}' ,   ", cliente.ocupacion));
-                query.Append(string.Format("{0} )     ", cliente.ingresos));
+                query.Append(string.Format("{0},{1} )     ", cliente.ingresos,cliente.estado_RegistroClientesId));
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(query.ToString(), connection);
 
@@ -276,8 +412,8 @@ namespace CuentasPorCobrar.Models
 
                 // Crear la consulta SQL
 
-                //query.Append("DELETE FROM prestamo WHERE  IDprestamo= "+id);
-                query.Append("update  solicitud_prestamo set estadoId = 1 WHERE  solicitud_ID = " + id);
+                //query.Append("DELETE FROM CLIENTES WHERE  clienteID= "+id);
+                query.Append("update  CLIENTES set estado_RegistroClientesId = 2 WHERE  clienteID = " + id);
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(query.ToString(), connection);
 
@@ -297,6 +433,212 @@ namespace CuentasPorCobrar.Models
 
             return retorno;
         }
+
+        // Función para obtener tipos de identificacion
+        public List<TipoIdentificacion> GetTiposIdentificacion()
+        {
+            List<TipoIdentificacion> tipos = new List<TipoIdentificacion>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT * FROM tipo_identificacion";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    TipoIdentificacion tipoIdentificacion = new TipoIdentificacion();
+                    // Obtener los valores de las columnas de la tabla
+                    tipoIdentificacion.Id = reader.GetInt16(0);
+                    tipoIdentificacion.Nombre = reader.GetString(1);
+
+                    tipos.Add(tipoIdentificacion);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return tipos;
+        }
+
+        // Función para obtener genero
+        public List<Genero> GetGenero()
+        {
+            List<Genero> generos = new List<Genero>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT * FROM genero";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    Genero genero = new Genero();
+                    // Obtener los valores de las columnas de la tabla
+                    genero.Id = reader.GetInt16(0);
+                    genero.Nombre = reader.GetString(1);
+
+                    generos.Add(genero);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return generos;
+        }
+
+        // Función para obtener Estado Civil
+        public List<EstadoCivil> GetEstadoCivil()
+        {
+            List<EstadoCivil> estados = new List<EstadoCivil>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT * FROM estado_civil;";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    EstadoCivil estado = new EstadoCivil();
+                    // Obtener los valores de las columnas de la tabla
+                    estado.Id = reader.GetInt16(0);
+                    estado.Nombre = reader.GetString(1);
+
+                    estados.Add(estado);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return estados;
+        }
+
+
+
+        public List<Direccion> GetDireccionesPorCliente(int clienteID)
+        {
+            List<Direccion> direcciones = new List<Direccion>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT direccionId, calle, numero, ciudad, provincia, pais, codigo_postal, td.nom_tipDireccion FROM direccion d " +
+                    "INNER JOIN tipo_direccion td " +
+                    "ON td.tipo_direccionId = d.tipoDireccionId " +
+                    "WHERE d.clienteID = " + clienteID;
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    Direccion direccion = new Direccion();
+                    // Obtener los valores de las columnas de la tabla
+                    direccion.Id = reader.GetInt16(0);
+                    direccion.calle = reader.GetString(1);
+                    direccion.numero = reader.GetInt32(2);
+                    direccion.ciudad = reader.GetString(3);
+                    direccion.provincia = reader.GetString(4);
+                    direccion.pais = reader.GetString(5);
+                    direccion.codigo_postal = reader.GetString(6);
+                    direccion.TipoDireccion = reader.GetString(7);
+
+
+
+                    direcciones.Add(direccion);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return direcciones;
+        }
+
+
 
         //*************************************************************************//
 
@@ -572,7 +914,9 @@ namespace CuentasPorCobrar.Models
             return retorno;
         }
 
-        //=======================================================//
+//==============================================================//
+
+/******************************PRESTAMOS******************************/
         // Función Detalles para Prestamos
         public Prestamo GetDetallePrestamo(int id)
         {
@@ -934,7 +1278,8 @@ namespace CuentasPorCobrar.Models
 
             return retorno;
         }
-        
+/*********************************************************************/
+
 //**************************PAGOS**************************************//
         // funciones para Listar Pagos
         public List<Pagos> GetPagos()
@@ -1158,8 +1503,55 @@ namespace CuentasPorCobrar.Models
             return retorno;
         }
 
-        //********************************************************************//
+//********************************************************************//
+
+        //Función para listar Cargos
+        public List<Cargo> GetCargos()
+        {
+            List<Cargo> cargos = new List<Cargo>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT  cargoId, nombre_cargo FROM cargo";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    Cargo cargo = new Cargo();
+                    // Obtener los valores de las columnas de la tabla
+                    cargo.Id = reader.GetInt16(0);
+                    cargo.nombre_cargo = reader.GetString(1);
+
+
+                    cargos.Add(cargo);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return cargos;
+        }
     }
 }
-
-

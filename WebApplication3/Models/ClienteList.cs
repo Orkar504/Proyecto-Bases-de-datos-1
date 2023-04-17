@@ -2,18 +2,18 @@
 
 namespace CuentasPorCobrar.Models
 {
-    public class Cliente
+    public class ClienteList
     {
         [Required]
         public int Id { get; set; }
         [Required]
-        public int tipo_identificacion { get; set; }
+        public String tipo_identificacion { get; set; }
         [Required]
-        public int Direccion { get; set; }
+        public String Direccion { get; set; }
         [Required]
-        public int estado_civil { get; set; }
+        public String estado_civil { get; set; }
         [Required]
-        public int genero { get; set; }
+        public String genero { get; set; }
         [Required]
         public String num_identificacion { get; set; }
         [Required]

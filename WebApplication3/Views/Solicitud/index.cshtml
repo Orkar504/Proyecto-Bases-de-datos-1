@@ -8,22 +8,22 @@
 <h1>Solicitudes</h1>
 
 <p>
-    <a asp-action="Create">Crear Nueva Solicitud</a>
+    <a class="btn btn-primary" asp-action="Create">Nueva Solicitud</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
+                Id
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.fecha_solicitud)
+                Fecha de Solicitud
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.monto)
+                Monto
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.clienteId)
+                Cliente
             </th>
             
             <th></th>

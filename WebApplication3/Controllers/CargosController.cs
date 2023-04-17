@@ -1,41 +1,37 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CuentasPorCobrar.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using CuentasPorCobrar.Models;
-using cuentasPorCobrar.Models;
 
-namespace CuentasPorCobrar.Controllers
+namespace cuentasPorCobrar.Controllers
 {
-    public class ClientesController : Controller
+    public class CargosController : Controller
     {
         ProyectoContext proyectoContext = new ProyectoContext();
-        // GET: ClientesController
+        // GET: CargosController
         public ActionResult Index()
         {
-            var clientes = proyectoContext.GetClientesList(); 
-            return View(clientes);
+            return View(proyectoContext.GetCargos());
         }
 
-        // GET: ClientesController/Details/5
+        // GET: CargosController/Details/5
         public ActionResult Details(int id)
         {
-            return View(proyectoContext.GetDetalleClientesList(id));
+            return View();
         }
 
-        // GET: ClientesController/Create
+        // GET: CargosController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: EstadoCivilController/Create
+        // POST: CargosController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Cliente cliente)
+        public ActionResult Create(IFormCollection collection)
         {
             try
             {
-                cliente.estado_RegistroClientesId = 1;
-                proyectoContext.CreateClientes(cliente);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -44,21 +40,19 @@ namespace CuentasPorCobrar.Controllers
             }
         }
 
-
-        // GET: ClientesController/Edit/5
+        // GET: CargosController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View(proyectoContext.GetDetalleClientes(id));
+            return View();
         }
 
-        // POST: ClientesController/Edit/5
+        // POST: CargosController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, Cliente cliente)
+        public ActionResult Edit(int id, IFormCollection collection)
         {
             try
             {
-                proyectoContext.UpdateClientes(cliente);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -67,20 +61,19 @@ namespace CuentasPorCobrar.Controllers
             }
         }
 
-        // GET: ClientesController/Delete/5
+        // GET: CargosController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View(proyectoContext.GetDetalleClientesList(id));
+            return View();
         }
 
-        // POST: ClientesController/Delete/5
+        // POST: CargosController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
-                proyectoContext.DeleteClientes(id);
                 return RedirectToAction(nameof(Index));
             }
             catch

@@ -1,19 +1,13 @@
-﻿@using cuentasPorCobrar.Models;
-@model CuentasPorCobrar.Models.ClienteList
+﻿@model CuentasPorCobrar.Models.ClienteList
 
 @{
-
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Delete";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
-    ProyectoContext proyectoContext = new ProyectoContext();
-
-    List<Direccion> direcciones = new List<Direccion>();
-    direcciones = proyectoContext.GetDireccionesPorCliente(Model.Id); 
 }
 
-<h1>Detalles</h1>
+<h1>Delete</h1>
 
+<h3>Are you sure you want to delete this?</h3>
 <div>
     <h4>Cliente</h4>
     <hr />
@@ -97,79 +91,9 @@
             @Html.DisplayFor(model => model.ingresos)
         </dd>
     </dl>
+    
+    <form asp-action="Delete">
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
 </div>
-<div>
-    @Html.ActionLink("Edit", "Edit", new {  id = Model.Id  }) |
-    <a asp-action="Index">Back to List</a>
-</div>
-
-
-
-<p>Direcciones</p>
-<table class="table">
-
-    <thead>
-        <tr>
-            <th>
-                Id
-            </th>
-            <th>
-                Calle
-            </th>
-            
-            <th>
-                Numero
-            </th>
-
-            <th>
-                Ciudad
-            </th>
-            <th>
-                Provincia
-            </th>
-            <th>
-                Pais
-            </th>
-            <th>
-                Codigo Postal
-            </th>
-            <th>
-                Tipo de Direccion
-            </th>
-
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in direcciones) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.calle)
-            </td>
-            
-            <td>
-                @Html.DisplayFor(modelItem => item.numero)
-            </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ciudad)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.provincia)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.pais)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.codigo_postal)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TipoDireccion)
-                </td>
-            
-        </tr>
-}
-    </tbody>
-</table>
-

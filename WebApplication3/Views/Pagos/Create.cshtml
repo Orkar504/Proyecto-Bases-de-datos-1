@@ -68,13 +68,14 @@
         $(document).ready(function () {
             $("#clientes").change(function () {
                 $.get("/Pagos/getPrestamos", { Id: $("#clientes").val() }, function (data) {
+                    //console.log(data)
                     // VACIAMOS EL DropDownList
                     $("#IDprestamo").empty();
                     // AÑADIMOS UN NUEVO label CON EL NOMBRE DEL ELEMENTO SELECCIONADO
                     $("#IDprestamo").append("<option value> -- Seleccionar prestamos de " + $("#clientes option:selected").text() + " --</option>")
                     // CONSTRUIMOS EL DropDownList A PARTIR DEL RESULTADO Json (data)
                     $.each(data, function (index, row) {
-                        $("#IDprestamo").append("<option value='" + row.Id + "'>" + row.descripcion + "</option>")
+                        $("#IDprestamo").append("<option value='" + row.id + "'>" + row.descripcion + "</option>")
                     });
                 });
             });
