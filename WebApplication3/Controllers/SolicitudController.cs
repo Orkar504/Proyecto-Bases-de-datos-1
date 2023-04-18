@@ -11,18 +11,24 @@ namespace cuentasPorCobrar.Controllers
         // GET: HomeController1
         public ActionResult Index()
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View(proyectoContext.GetSolicitud());
         }
 
         // GET: SolicitudController/Details/5
         public ActionResult Details(int id)
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View(proyectoContext.GetDetalleSolicitud(id));
         }
 
         // GET: SolicitudController/Create
         public ActionResult Create()
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View();
         }
 
@@ -46,6 +52,8 @@ namespace cuentasPorCobrar.Controllers
         // GET: SolicitudController/Edit/5
         public ActionResult Edit(int id)
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View(proyectoContext.GetDetalleSolicitud(id));
         }
 
@@ -68,6 +76,8 @@ namespace cuentasPorCobrar.Controllers
         // GET: SolicitudController/Delete/5
         public ActionResult Delete(int id)
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View(proyectoContext.GetDetalleSolicitud(id));  
         }
 

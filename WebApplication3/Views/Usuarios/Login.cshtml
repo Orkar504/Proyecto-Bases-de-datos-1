@@ -1,0 +1,40 @@
+﻿@model cuentasPorCobrar.Models.Usuario
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Login</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Login">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="user" class="control-label">Usuario</label>
+                <input asp-for="user" class="form-control" />
+                <span asp-validation-for="user" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="pass" class="control-label">Password</label>
+                <input asp-for="pass" type="password" class="form-control" />
+                <span asp-validation-for="pass" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Ingresar" class="btn btn-primary" />
+            </div>
+            @if (!@ViewBag.flatLogin)
+            {
+                <label class="control-label text-danger">Usuario o contraseña no correctos</label>
+            }
+            
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

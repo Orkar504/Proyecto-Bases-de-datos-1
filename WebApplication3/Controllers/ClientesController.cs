@@ -8,9 +8,12 @@ namespace CuentasPorCobrar.Controllers
     public class ClientesController : Controller
     {
         ProyectoContext proyectoContext = new ProyectoContext();
+
         // GET: ClientesController
         public ActionResult Index()
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return  Redirect("/Usuarios/Login");
             var clientes = proyectoContext.GetClientesList(); 
             return View(clientes);
         }
@@ -18,12 +21,16 @@ namespace CuentasPorCobrar.Controllers
         // GET: ClientesController/Details/5
         public ActionResult Details(int id)
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View(proyectoContext.GetDetalleClientesList(id));
         }
 
         // GET: ClientesController/Create
         public ActionResult Create()
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View();
         }
 
@@ -35,7 +42,11 @@ namespace CuentasPorCobrar.Controllers
             try
             {
                 cliente.estado_RegistroClientesId = 1;
-                proyectoContext.CreateClientes(cliente);
+                Operacion operacion = proyectoContext.CreateClientes(cliente);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -48,6 +59,8 @@ namespace CuentasPorCobrar.Controllers
         // GET: ClientesController/Edit/5
         public ActionResult Edit(int id)
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View(proyectoContext.GetDetalleClientes(id));
         }
 
@@ -58,7 +71,11 @@ namespace CuentasPorCobrar.Controllers
         {
             try
             {
-                proyectoContext.UpdateClientes(cliente);
+                Operacion operacion = proyectoContext.UpdateClientes(cliente);
+                if(!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -70,6 +87,8 @@ namespace CuentasPorCobrar.Controllers
         // GET: ClientesController/Delete/5
         public ActionResult Delete(int id)
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View(proyectoContext.GetDetalleClientesList(id));
         }
 
@@ -80,7 +99,11 @@ namespace CuentasPorCobrar.Controllers
         {
             try
             {
-                proyectoContext.DeleteClientes(id);
+                Operacion operacion = proyectoContext.DeleteClientes(id);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch

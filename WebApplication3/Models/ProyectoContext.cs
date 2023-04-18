@@ -1,4 +1,5 @@
 ﻿using cuentasPorCobrar.Models;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MySql.Data.MySqlClient;
 using System.Text;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -8,22 +9,69 @@ namespace CuentasPorCobrar.Models
     public class ProyectoContext
     {
         private static MySqlConnection conexion;
+        private static Usuario usuario;
+
+        public ProyectoContext()
+        {
+            usuario = new Usuario();
+            usuario.user = "root";
+            usuario.pass = "GRRM@8398/*";
+        }
+
+        public ProyectoContext(String user, String pass)
+        {
+                usuario = new Usuario();
+                usuario.user = user;
+                usuario.pass = pass;
+                conexion = null;
+                ObtenerConexion();
+        }
+
+        public bool validaConexion()
+        {
+            if(conexion != null)
+            {
+                try
+                {
+                    if(conexion.State!=System.Data.ConnectionState.Open)
+                    {
+                        conexion.Open();
+                        conexion.Close();
+                    }
+                    return true;
+                }
+                catch(Exception ex)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
         public static MySqlConnection ObtenerConexion()
         {
-            if (conexion == null)
+            try
             {
-                // Parámetros de conexión
-                string server = "localhost";
-                string database = "sistema_cuentasXcobrar";
-                string uid = "root";
-                string password = "GRRM@8398/*";
+                if (conexion == null)
+                {
+                    // Parámetros de conexión
+                    string server = "localhost";
+                    string database = "sistema_cuentasXcobrar";
+                    string uid = usuario.user;
+                    string password = usuario.pass;
 
-                // Cadena de conexión
-                string connectionString = $"Server={server};Database={database};Uid={uid};Pwd={password};";
+                    // Cadena de conexión
+                    string connectionString = $"Server={server};Database={database};Uid={uid};Pwd={password};";
 
-                // Crear la conexión
-                conexion = new MySqlConnection(connectionString);
+                    // Crear la conexión
+                    conexion = new MySqlConnection(connectionString);
+                }
             }
+            catch(MySqlException ex)
+            {
+
+            }
+            
 
             return conexion;
         }
@@ -288,9 +336,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Función para Actualizar clientes
-        public bool UpdateClientes(Cliente cliente)
+        public Operacion UpdateClientes(Cliente cliente)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -321,13 +369,18 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                retorno.esValida = false;
+                if (  ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+                
             }
 
             // Cerrar la conexión
@@ -337,9 +390,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Función para Crear Clientes
-        public bool CreateClientes(Cliente cliente)
+        public Operacion CreateClientes(Cliente cliente)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -383,13 +436,17 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -399,9 +456,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Función para Eliminar Clientes
-        public bool DeleteClientes(int id)
+        public Operacion DeleteClientes(int id)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -419,13 +476,17 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión

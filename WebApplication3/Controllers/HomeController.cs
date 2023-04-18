@@ -15,6 +15,9 @@ namespace CuentasPorCobrar.Controllers
 
         public IActionResult Index()
         {
+            
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View();
         }
          
