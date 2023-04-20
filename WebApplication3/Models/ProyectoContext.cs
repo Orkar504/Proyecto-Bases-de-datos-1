@@ -1,6 +1,7 @@
 ﻿using cuentasPorCobrar.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI;
 using System.Text;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -27,8 +28,9 @@ namespace CuentasPorCobrar.Models
                 ObtenerConexion();
         }
 
-        public bool validaConexion()
+        public Operacion validaConexion()
         {
+            Operacion operacion = new Operacion();
             if(conexion != null)
             {
                 try
@@ -36,17 +38,54 @@ namespace CuentasPorCobrar.Models
                     if(conexion.State!=System.Data.ConnectionState.Open)
                     {
                         conexion.Open();
+                        string sql = "SHOW GRANTS FOR CURRENT_USER()";
+
+                        // Crear un objeto MySqlCommand
+                        MySqlCommand command = new MySqlCommand(sql, conexion);
+
+                        // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                        MySqlDataReader reader = command.ExecuteReader();
+
+                        // Recorrer los resultados de la consulta
+                        while (reader.Read())
+                        {
+                            String permisos = reader.GetString(0);
+                            if (permisos.Contains("cuentasxcobrar") || usuario.user=="root")
+                            {
+                                if (!permisos.ToUpper().Contains("SELECT"))
+                                {
+                                    operacion.Mensaje = "Usuario no tiene permisos para realizar operaciones";
+                                    operacion.esValida = false;
+                                }
+                                else
+                                {
+                                    operacion.Mensaje = "";
+                                    operacion.esValida = true;
+                                    break;
+                                }
+                                
+                            }
+                            else
+                                continue;
+                            
+                            // ...
+                        }
                         conexion.Close();
                     }
-                    return true;
                 }
-                catch(Exception ex)
+                catch(MySqlException ex)
                 {
-                    return false;
+                    if(ex.Number == 1044)
+                    {
+                        operacion.esValida = false;
+                        operacion.Mensaje = "Usuario no tiene permisos al sistema";
+                    }
                 }
             }
-            return false;
+            return operacion;
         }
+
+
 
         public static MySqlConnection ObtenerConexion()
         {
@@ -78,8 +117,9 @@ namespace CuentasPorCobrar.Models
 
 //**************************CLIENTES****************************************//
         // funciones LISTAR para cliente
-        public List<Cliente> GetClientes()
+        public Operacion GetClientes()
         {
+            Operacion retorno = new Operacion();
             List<Cliente> clientes = new List<Cliente>();
 
             MySqlConnection connection = ObtenerConexion();
@@ -125,21 +165,27 @@ namespace CuentasPorCobrar.Models
 
                 // Cerrar el MySqlDataReader
                 reader.Close();
+                
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar consultas";
+                }
             }
 
             // Cerrar la conexión
             connection.Close();
-
-            return clientes;
+            retorno.resultado = clientes;
+            return retorno;
         }
 
-        public List<ClienteList> GetClientesList()
+        public Operacion GetClientesList()
         {
+            Operacion retorno = new Operacion();
             List<ClienteList> clientes = new List<ClienteList>();
 
             MySqlConnection connection = ObtenerConexion();
@@ -195,22 +241,28 @@ namespace CuentasPorCobrar.Models
 
                 // Cerrar el MySqlDataReader
                 reader.Close();
+                retorno.esValida = true;
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar consultas";
+                }
             }
 
             // Cerrar la conexión
             connection.Close();
-
-            return clientes;
+            retorno.resultado = clientes;
+            return retorno;
         }
 
         //Función Detalle Clientes
-        public Cliente GetDetalleClientes(int id)
+        public Operacion GetDetalleClientes(int id)
         {
+            Operacion retorno = new Operacion();
             Cliente cliente = new Cliente();
 
             MySqlConnection connection = ObtenerConexion();
@@ -258,17 +310,22 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar consultas";
+                }
             }
 
             // Cerrar la conexión
             connection.Close();
-
-            return cliente;
+            retorno.resultado = cliente;
+            return retorno;
         }
 
-        public ClienteList GetDetalleClientesList(int id)
+        public Operacion GetDetalleClientesList(int id)
         {
+            Operacion retorno = new Operacion();
             ClienteList cliente = new ClienteList();
 
             MySqlConnection connection = ObtenerConexion();
@@ -326,13 +383,17 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar consultas";
+                }
             }
 
             // Cerrar la conexión
             connection.Close();
-
-            return cliente;
+            retorno.resultado = cliente;
+            return retorno;
         }
 
         //Función para Actualizar clientes
@@ -364,7 +425,7 @@ namespace CuentasPorCobrar.Models
                 query.Append(string.Format("ocupacion = '{0}' ,                            ", cliente.ocupacion));
                 query.Append(string.Format("ingreso_mensual = {0}                          ", cliente.ingresos));
                 query.Append(string.Format("WHERE clienteID = {0}                        ", cliente.Id));
-                // Crear un objeto MySqlCommand
+                // Crear un objeto MySqlCommands
                 MySqlCommand command = new MySqlCommand(query.ToString(), connection);
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
@@ -856,9 +917,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Función para ACTUALIZAR solicitudes
-        public bool UpdateSolicitud(Solicitud solicitud)
+        public Operacion UpdateSolicitud(Solicitud solicitud)
         {
-            bool retorno = false;
+            Operacion retorno = new  cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -880,13 +941,17 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -896,9 +961,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Función para ELIMINAR solicitud
-        public bool DeleteSolicitud(int id)
+        public Operacion DeleteSolicitud(int id)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -916,13 +981,16 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -932,9 +1000,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Función para CREAR solicitud
-        public bool CreateSolicitud(Solicitud solicitud)
+        public Operacion CreateSolicitud(Solicitud solicitud)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -960,13 +1028,16 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -1200,9 +1271,9 @@ namespace CuentasPorCobrar.Models
             return solicitudes;
         }
         // funciones para actualizar Prestamos
-        public bool UpdatePrestamos(Prestamo prestamo)
+        public Operacion UpdatePrestamos(Prestamo prestamo)
         {
-            bool  retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -1231,13 +1302,16 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                int afectados =  command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -1247,9 +1321,9 @@ namespace CuentasPorCobrar.Models
         }
 
         // funciones para Eliminar Prestamos
-        public bool DeletePrestamos(int id)
+        public Operacion DeletePrestamos(int id)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -1267,13 +1341,16 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -1283,9 +1360,9 @@ namespace CuentasPorCobrar.Models
         }
 
         // funciones para Crear Prestamos
-        public bool CreatePrestamos(Prestamo prestamo)
+        public Operacion CreatePrestamos(Prestamo prestamo)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -1325,13 +1402,16 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -1445,9 +1525,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Funciones para Actualizar Pagos
-        public bool UpdatePagos(Pagos pagos)
+        public Operacion UpdatePagos(Pagos pagos)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -1469,13 +1549,16 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -1485,9 +1568,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Funciones para Eliminar Pagos
-        public bool DeletePagos(int id)
+        public Operacion DeletePagos(int id)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -1505,13 +1588,16 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión
@@ -1521,9 +1607,9 @@ namespace CuentasPorCobrar.Models
         }
 
         //Función para crear Pagos
-        public bool CreatePagos(Pagos pagos)
+        public Operacion CreatePagos(Pagos pagos)
         {
-            bool retorno = false;
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
             MySqlConnection connection = ObtenerConexion();
             StringBuilder query = new StringBuilder();
@@ -1549,13 +1635,16 @@ namespace CuentasPorCobrar.Models
 
                 // Ejecutar la consulta y obtener un objeto MySqlDataReader
                 int afectados = command.ExecuteNonQuery();
-                retorno = afectados > 0;
+                retorno.esValida = afectados > 0;
 
 
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
             }
 
             // Cerrar la conexión

@@ -3,6 +3,7 @@ using CuentasPorCobrar.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using MySqlX.XDevAPI;
 
 namespace cuentasPorCobrar.Controllers
 {
@@ -41,7 +42,12 @@ namespace cuentasPorCobrar.Controllers
             try
             {
                 pagos.estado_pago = 2;
-                proyectoContext.CreatePagos(pagos);
+                Operacion operacion = proyectoContext.CreatePagos(pagos);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
+                
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -65,7 +71,11 @@ namespace cuentasPorCobrar.Controllers
         {
             try
             {
-                proyectoContext.UpdatePagos(pagos);
+                Operacion operacion = proyectoContext.UpdatePagos(pagos);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -89,7 +99,11 @@ namespace cuentasPorCobrar.Controllers
         {
             try
             {
-                proyectoContext.DeletePagos(id);
+                Operacion operacion = proyectoContext.DeletePagos(id);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch

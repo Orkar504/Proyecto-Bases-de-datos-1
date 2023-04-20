@@ -6,6 +6,14 @@
 }
 
 <h1>Solicitudes</h1>
+@if (TempData["OperacionError"] != null)
+{
+    var error = TempData["OperacionError"];
+    if (error.ToString() != "")
+    {
+        <p class="text-danger">@error</p>
+    }
+}
 
 <p>
     <a class="btn btn-primary" asp-action="Create">Nueva Solicitud</a>

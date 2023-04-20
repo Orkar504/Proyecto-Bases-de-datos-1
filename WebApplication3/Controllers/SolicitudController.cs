@@ -2,6 +2,7 @@
 using CuentasPorCobrar.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace cuentasPorCobrar.Controllers
 {
@@ -40,7 +41,12 @@ namespace cuentasPorCobrar.Controllers
             try
             {
                 solicitud.estado_solicitud = 2;
-                proyectoContext.CreateSolicitud(solicitud);
+                Operacion operacion = proyectoContext.CreateSolicitud(solicitud);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
+                
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -64,7 +70,12 @@ namespace cuentasPorCobrar.Controllers
         {
             try
             {
-                proyectoContext.UpdateSolicitud(solicitud);
+                Operacion operacion = proyectoContext.UpdateSolicitud(solicitud);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
+                
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -88,7 +99,12 @@ namespace cuentasPorCobrar.Controllers
         {
             try
             {
-                proyectoContext.DeleteSolicitud(id);
+                Operacion operacion = proyectoContext.DeleteSolicitud(id);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
+                
                 return RedirectToAction(nameof(Index));
             }
             catch

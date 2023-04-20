@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Login";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
 }
 
 <h1>Login</h1>
@@ -27,7 +27,15 @@
             </div>
             @if (!@ViewBag.flatLogin)
             {
-                <label class="control-label text-danger">Usuario o contraseña no correctos</label>
+                if (@ViewBag.Error !="")
+                {
+                    <label class="control-label text-danger">@ViewBag.Error</label>
+                }
+                else
+                {
+                    <label class="control-label text-danger">Usuario o contraseña no correctos</label>
+                }
+                
             }
             
         </form>

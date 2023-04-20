@@ -44,7 +44,9 @@ namespace cuentasPorCobrar.Controllers
             try
             {
                 proyectoContext = new ProyectoContext(usuario.user,usuario.pass);
-                ViewBag.flatLogin = proyectoContext.validaConexion();
+                Operacion operacion = proyectoContext.validaConexion();
+                ViewBag.flatLogin = operacion.esValida;
+                ViewBag.Error = operacion.Mensaje;
                 
                 if (ViewBag.flatLogin)
                 {

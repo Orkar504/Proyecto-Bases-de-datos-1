@@ -14,7 +14,13 @@ namespace CuentasPorCobrar.Controllers
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return  Redirect("/Usuarios/Login");
-            var clientes = proyectoContext.GetClientesList(); 
+            Operacion operacion = proyectoContext.GetClientesList();
+            if (!operacion.esValida)
+            {
+                TempData["OperacionError"] = operacion.Mensaje;
+            }
+            var clientes = operacion.resultado; 
+
             return View(clientes);
         }
 
@@ -23,7 +29,7 @@ namespace CuentasPorCobrar.Controllers
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
-            return View(proyectoContext.GetDetalleClientesList(id));
+            return View(proyectoContext.GetDetalleClientesList(id).resultado);
         }
 
         // GET: ClientesController/Create
@@ -61,7 +67,8 @@ namespace CuentasPorCobrar.Controllers
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
-            return View(proyectoContext.GetDetalleClientes(id));
+
+            return View(proyectoContext.GetDetalleClientes(id).resultado);
         }
 
         // POST: ClientesController/Edit/5
@@ -89,7 +96,7 @@ namespace CuentasPorCobrar.Controllers
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
-            return View(proyectoContext.GetDetalleClientesList(id));
+            return View(proyectoContext.GetDetalleClientesList(id).resultado);
         }
 
         // POST: ClientesController/Delete/5
