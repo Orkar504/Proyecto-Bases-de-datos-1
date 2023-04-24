@@ -52,7 +52,8 @@ namespace cuentasPorCobrar.Controllers
                 {
 
                     HttpContext.Response.Cookies.Append("UserId", usuario.user);
-                    return Redirect("/");
+                    //return Redirect("/cuentasPorCobrar"); // antes de publicar
+                    return Redirect("/"); // pruebas en el proyecto
                 }                    
                 else
                     return View();

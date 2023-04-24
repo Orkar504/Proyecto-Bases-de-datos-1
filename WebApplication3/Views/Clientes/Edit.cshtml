@@ -48,11 +48,14 @@
 
                 <span asp-validation-for="tipo_identificacion" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+           
+            
+            @*<div class="form-group">
                 <label asp-for="Direccion" class="control-label"></label>
                 <input asp-for="Direccion" class="form-control" />
                 <span asp-validation-for="Direccion" class="text-danger"></span>
-            </div>
+            </div>*@
             @*<div class="form-group">
                 <label asp-for="estado_civil" class="control-label"></label>
                 <input asp-for="estado_civil" class="form-control" />
@@ -70,14 +73,10 @@
                 <span asp-validation-for="estado_civil" class="text-danger"></span>
             </div>
 
-            @*<div class="form-group">
-                <label asp-for="genero" class="control-label"></label>
-                <input asp-for="genero" class="form-control" />
-                <span asp-validation-for="genero" class="text-danger"></span>
-            </div>*@
+            
+
             <div class="form-group">
                 <label asp-for="genero" class="control-label">Genero</label>
-                <!--<input asp-for="IDprestamo" class="form-control" /> -->
                 @Html.DropDownList("genero",
                 itemsGenero,
                 "Seleccione un genero",
@@ -85,6 +84,8 @@
 
                 <span asp-validation-for="genero" class="text-danger"></span>
             </div>
+
+            
             <div class="form-group">
                 <label asp-for="num_identificacion" class="control-label"></label>
                 <input asp-for="num_identificacion" class="form-control" />

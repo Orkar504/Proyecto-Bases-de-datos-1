@@ -8,6 +8,7 @@ namespace cuentasPorCobrar.Models
 {
     public class Prestamo
     {
+        [Required]
         public int Id { get; set; }
         [Required(ErrorMessage = "El campo Id no es correcto")]
         public int IdComite { get; set; }
@@ -16,6 +17,7 @@ namespace cuentasPorCobrar.Models
         [Required]
         public decimal Tasa_interes { get; set; }
         [Required]
+        [MaxLength(50, ErrorMessage ="Este campo no puede tener mas de 50 caracteres")]
         public String Tipo_interes { get; set; }
         [Required]
         public string Fecha_inicio { get; set; }

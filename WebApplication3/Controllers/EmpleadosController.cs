@@ -1,37 +1,59 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using cuentasPorCobrar.Models;
 using CuentasPorCobrar.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using MySqlX.XDevAPI;
 
-namespace CuentasPorCobrar.Controllers
+namespace cuentasPorCobrar.Controllers
 {
     public class EmpleadosController : Controller
     {
         ProyectoContext proyectoContext = new ProyectoContext();
-        // GET: HomeController1
+        // GET: EmpleadosController
         public ActionResult Index()
         {
-            return View(proyectoContext.GetEmpleados());
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
+            Operacion operacion = proyectoContext.GetEmpleadoList();
+            if (!operacion.esValida)
+            {
+                TempData["OperacionError"] = operacion.Mensaje;
+            }
+            var empleados = operacion.resultado;
+
+            return View(empleados);
         }
 
-        // GET: HomeController1/Details/5
+        // GET: EmpleadosController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
+            return View(proyectoContext.GetDetalleEmpleadoList(id).resultado);
         }
 
-        // GET: HomeController1/Create
+        // GET: EmpleadosController/Create
         public ActionResult Create()
         {
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
             return View();
         }
 
-        // POST: HomeController1/Create
+        // POST: EmpleadosController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Empleado empleado)
         {
             try
             {
+
+                empleado.estado_RegistroEmpleado = 1;
+                Operacion operacion = proyectoContext.CreateEmpleados(empleado);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -40,19 +62,26 @@ namespace CuentasPorCobrar.Controllers
             }
         }
 
-        // GET: HomeController1/Edit/5
+        // GET: EmpleadosController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
+            return View(proyectoContext.GetDetalleEmpleado(id).resultado);
         }
 
-        // POST: HomeController1/Edit/5
+        // POST: EmpleadosController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Empleado empleado)
         {
             try
             {
+                Operacion operacion = proyectoContext.UpdateEmpleado(empleado);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -61,19 +90,26 @@ namespace CuentasPorCobrar.Controllers
             }
         }
 
-        // GET: HomeController1/Delete/5
+        // GET: EmpleadosController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
+                return Redirect("/Usuarios/Login");
+            return View(proyectoContext.GetDetalleEmpleadoList(id).resultado);
         }
 
-        // POST: HomeController1/Delete/5
+        // POST: EmpleadosController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
+                Operacion operacion = proyectoContext.DeleteEmpleados(id);
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch

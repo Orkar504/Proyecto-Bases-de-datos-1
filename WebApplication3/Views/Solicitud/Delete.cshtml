@@ -3,11 +3,10 @@
 @{
     ViewData["Title"] = "Delete";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    TempData["id"] = TempData["id"];
 }
 
 <h1>Eliminar</h1>
-
-<h3>¿Estas seguro de Eliminar esta Solicitud?</h3>
 <div>
     <h4>Solicitud</h4>
     <hr />
@@ -44,8 +43,9 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+    <form asp-action="Aprobar">
+        <input type="submit" value="Aprobar" class="btn btn-primary" /> |
+        <input type="submit" value="Denegar" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
 </div>

@@ -1,13 +1,32 @@
-﻿@model CuentasPorCobrar.Models.Empleado
+﻿@using cuentasPorCobrar.Models;
+@model CuentasPorCobrar.Models.Empleado
 
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ProyectoContext proyectoContext = new ProyectoContext();
+
+    List<TipoIdentificacion> tiposIdentificacion = new List<TipoIdentificacion>();
+    tiposIdentificacion = proyectoContext.GetTiposIdentificacion();
+    List<SelectListItem> itemsTipoIdentificacion = tiposIdentificacion.Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.Nombre }).ToList();
+
+    List<Genero> generos = new List<Genero>();
+    generos = proyectoContext.GetGenero();
+    List<SelectListItem> itemsGenero = generos.Select(g => new SelectListItem { Value = g.Id.ToString(), Text = g.Nombre }).ToList();
+
+    List<EstadoCivil> estados = new List<EstadoCivil>();
+    estados = proyectoContext.GetEstadoCivil();
+    List<SelectListItem> itemsEstado_civil = estados.Select(e => new SelectListItem { Value = e.Id.ToString(), Text = e.Nombre }).ToList();
+
+    List<Cargo> cargos = new List<Cargo>();
+    cargos = proyectoContext.GetCargo();
+    List<SelectListItem> itemsCargos = cargos.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.nombre_cargo }).ToList();
 }
 
 <h1>Edit</h1>
 
-<h4>Empleado</h4>
+<h4>EmpleadoList</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -18,16 +37,104 @@
                 <input asp-for="Id" class="form-control" />
                 <span asp-validation-for="Id" class="text-danger"></span>
             </div>
+            @*<div class="form-group">
+                <label asp-for="tipo_identificacion" class="control-label"></label>
+                <input asp-for="tipo_identificacion" class="form-control" />
+                <span asp-validation-for="tipo_identificacion" class="text-danger"></span>
+            </div>*@
+
             <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
+                <label asp-for="tipo_identificacionId" class="control-label">Tipo Identificación</label>
+                <!--<input asp-for="IDprestamo" class="form-control" /> -->
+                @Html.DropDownList("tipo_identificacionId",
+                itemsTipoIdentificacion,
+                "Seleccione un tipo",
+                new { @class = "form-control" })
+
+                <span asp-validation-for="tipo_identificacionId" class="text-danger"></span>
+            </div>
+
+            @*<div class="form-group">
+                <label asp-for="estado_civil" class="control-label"></label>
+                <input asp-for="estado_civil" class="form-control" />
+                <span asp-validation-for="estado_civil" class="text-danger"></span>
+            </div>*@
+
+            <div class="form-group">
+                <label asp-for="estado_civilId" class="control-label">Estado Civil</label>
+                <!--<input asp-for="IDprestamo" class="form-control" /> -->
+                @Html.DropDownList("estado_civilId",
+                itemsEstado_civil,
+                "Seleccione Estado Civil",
+                new { @class = "form-control" })
+
+                <span asp-validation-for="estado_civilId" class="text-danger"></span>
+            </div>
+
+            @*<div class="form-group">
+                <label asp-for="genero" class="control-label"></label>
+                <input asp-for="genero" class="form-control" />
+                <span asp-validation-for="genero" class="text-danger"></span>
+            </div>*@
+
+            <div class="form-group">
+                <label asp-for="generoId" class="control-label">Genero</label>
+                @Html.DropDownList("generoId",
+                itemsGenero,
+                "Seleccione un genero",
+                new { @class = "form-control" })
+
+                <span asp-validation-for="generoId" class="text-danger"></span>
+            </div>
+
+            @*<div class="form-group">
+                <label asp-for="cargoId" class="control-label"></label>
+                <input asp-for="cargoId" class="form-control" />
+                <span asp-validation-for="cargoId" class="text-danger"></span>
+            </div>*@
+
+            <div class="form-group">
+                <label asp-for="cargoId" class="control-label">Cargo</label>
+                @Html.DropDownList("cargoId",
+                itemsCargos,
+                "Seleccione un Cargo",
+                new { @class = "form-control" })
+
+                <span asp-validation-for="cargoId" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group">
+                <label asp-for="num_identificacion" class="control-label"></label>
+                <input asp-for="num_identificacion" class="form-control" />
+                <span asp-validation-for="num_identificacion" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="email" class="control-label"></label>
-                <input asp-for="email" class="form-control" />
-                <span asp-validation-for="email" class="text-danger"></span>
+                <label asp-for="Nombres" class="control-label"></label>
+                <input asp-for="Nombres" class="form-control" />
+                <span asp-validation-for="Nombres" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Apellidos" class="control-label"></label>
+                <input asp-for="Apellidos" class="form-control" />
+                <span asp-validation-for="Apellidos" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="fecha_nacimiento" class="control-label"></label>
+                <input asp-for="fecha_nacimiento" class="form-control" />
+                <span asp-validation-for="fecha_nacimiento" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="telefono" class="control-label"></label>
+                <input asp-for="telefono" class="form-control" />
+                <span asp-validation-for="telefono" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

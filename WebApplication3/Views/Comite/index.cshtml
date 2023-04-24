@@ -1,37 +1,29 @@
-﻿@model IEnumerable<cuentasPorCobrar.Models.Pagos>
+﻿@model IEnumerable<cuentasPorCobrar.Models.Comite>
 
 @{
     ViewData["Title"] = "index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Pagos</h1>
-@if (TempData["OperacionError"] != null)
-{
-    var error = TempData["OperacionError"];
-    if (error.ToString() != "")
-    {
-        <p class="text-danger">@error</p>
-    }
-}
+<h1>index</h1>
 
 <p>
-    <a class="btn btn-primary" asp-action="Create">Nuevo Pago</a>
+    <a asp-action="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
+               Id
             </th>
             <th>
-                Prestamo
+                Empleado
             </th>
             <th>
-                Fecha de Pago
+                Solicitud
             </th>
             <th>
-                Monto
+                Estado
             </th>
             <th></th>
         </tr>
@@ -43,15 +35,13 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IDprestamo)
+                @Html.DisplayFor(modelItem => item.empleadoId)
             </td>
-
             <td>
-                @Html.DisplayFor(modelItem => item.fecha_pago)
+                @Html.DisplayFor(modelItem => item.SolicitudId)
             </td>
-
             <td>
-                @Html.DisplayFor(modelItem => item.monto)
+                @Html.DisplayFor(modelItem => item.estado_solicitud)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new {  id=item.Id  }) |

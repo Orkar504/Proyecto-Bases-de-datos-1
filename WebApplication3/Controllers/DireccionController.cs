@@ -2,57 +2,56 @@
 using CuentasPorCobrar.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using static Mysqlx.Crud.Order.Types;
 
 namespace cuentasPorCobrar.Controllers
 {
-    public class PrestamosController : Controller
+    public class DireccionController : Controller
     {
         ProyectoContext proyectoContext = new ProyectoContext();
-        // GET: HomeController1
-        public ActionResult Index()
+        // GET: DireccioController
+        public ActionResult Index(int id)
         {
+            TempData["clienteId"] = id;
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
-            return View(proyectoContext.GetPrestamos());
+            return View(proyectoContext.GetDireccionesPorCliente(id));
         }
 
-        // GET: PrestamosController/Details/5
+        // GET: DireccioController/Details/5
         public ActionResult Details(int id)
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
-            return View(proyectoContext.GetDetallePrestamo(id));
+            Direccion direccion = proyectoContext.GetDireccion(id);
+            direccion.clienteId = id;
+            return View(proyectoContext.GetDireccion(id));
         }
 
-        // GET: PrestamosController/Create
-        public ActionResult Create()
+        // GET: DireccioController/Create
+        public ActionResult Create(int id)
         {
+            TempData["clienteId"] = id;
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
             return View();
         }
 
-        // POST: PrestamosController/Create
+        // POST: DireccioController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Prestamo prestamo)
+        public ActionResult Create(int id, Direccion direccion)
         {
             try
             {
-                prestamo.estado = 2;
-                prestamo.IdComite = 11;
-                Operacion operacion = proyectoContext.CreatePrestamos(prestamo);
+                TempData["clienteId"] = id;
+                direccion.clienteId = id;
+                Operacion operacion = proyectoContext.CreateDirecciones(direccion);
                 if (!operacion.esValida)
                 {
                     TempData["OperacionError"] = operacion.Mensaje;
                 }
-                operacion = proyectoContext.UpdateEstadoSolicitud(prestamo.solicitudId, 4);
-                if (!operacion.esValida)
-                {
-                    TempData["OperacionError"] = operacion.Mensaje;
-                }
-                return RedirectToAction(nameof(Index));
+                return Redirect("/Direccion/Index/"+ direccion.clienteId);
             }
             catch
             {
@@ -60,28 +59,29 @@ namespace cuentasPorCobrar.Controllers
             }
         }
 
-        // GET: PrestamosController/Edit/5
+        // GET: DireccioController/Edit/5
         public ActionResult Edit(int id)
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
-            return View(proyectoContext.GetDetallePrestamo(id));
+            return View(proyectoContext.GetDireccionEdit(id));
         }
 
-        // POST: PrestamosController/Edit/5
+        // POST: DireccioController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, Prestamo prestamo)
+        public ActionResult Edit(int id, Direccion direccion)
         {
             try
             {
-                Operacion operacion = proyectoContext.UpdatePrestamos(prestamo);
+                TempData["clienteId"] = id;
+                Operacion operacion = proyectoContext.UpdateDirecciones(direccion);
                 if (!operacion.esValida)
                 {
                     TempData["OperacionError"] = operacion.Mensaje;
                 }
-                
-                return RedirectToAction(nameof(Index));
+                Direccion dir = proyectoContext.GetDireccionEdit(id);
+                return Redirect("/Direccion/Index/" + dir.clienteId);
             }
             catch
             {
@@ -89,39 +89,27 @@ namespace cuentasPorCobrar.Controllers
             }
         }
 
-        // GET: PrestamosController/Delete/5
+        // GET: DireccioController/Delete/5
         public ActionResult Delete(int id)
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
-            return View(proyectoContext.GetDetallePrestamo(id));
+            return View(proyectoContext.GetDireccion(id));
         }
 
-        // POST: PrestamosController/Delete/5
+        // POST: DireccioController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
-                Operacion operacion = proyectoContext.DeletePrestamos(id);
-                if (!operacion.esValida)
-                {
-                    TempData["OperacionError"] = operacion.Mensaje;
-                }
-                
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
                 return View();
             }
-        }
-
-        public JsonResult getMonto(int Id)
-        {
-            double monto = proyectoContext.getMontoSolicitud(Id);
-            return Json(monto);
         }
     }
 }

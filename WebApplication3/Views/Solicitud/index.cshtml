@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = "index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    String userId = TempData["userId"].ToString();
+    ProyectoContext proyectoContext = new ProyectoContext();
+    String resultadoValidaUsuario = proyectoContext.perteneceAComite(userId, 1).resultado.ToString();
 }
 
 <h1>Solicitudes</h1>
@@ -55,9 +58,13 @@
             
             <td>
                 @Html.ActionLink("Editar", "Edit", new {  id=item.Id  }) |
-                @Html.ActionLink("Detalles", "Details", new {  id=item.Id  }) |
-                @Html.ActionLink("Borrar", "Delete", new {  id=item.Id  })
-            </td>
+                @Html.ActionLink("Detalles", "Details", new {  id=item.Id  }) 
+                
+                    @if (resultadoValidaUsuario == "True")
+                    {
+                        <span>|</span> @Html.ActionLink("Aprobar", "Delete", new {  id=item.Id  }) 
+                    }
+                </td>
         </tr>
 }
     </tbody>

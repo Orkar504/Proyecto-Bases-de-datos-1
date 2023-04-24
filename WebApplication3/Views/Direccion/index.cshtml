@@ -1,0 +1,92 @@
+﻿@model IEnumerable<cuentasPorCobrar.Models.Direccion>
+
+@{
+    ViewData["Title"] = "index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ProyectoContext proyectoContext = new ProyectoContext();
+}
+
+<h1>Direcciones</h1>
+@if (TempData["OperacionError"] != null)
+{
+    var error = TempData["OperacionError"];
+    if (error.ToString() != "")
+    {
+        <p class="text-danger">@error</p>
+    }
+}
+
+<p>
+    @*<a class="btn btn-primary" asp-action="Create">Nueva Direccion</a>*@
+    <p></p>
+    @Html.ActionLink("Nueva Direccion", "Create", new {  id=TempData["clienteId"] },new { @class="btn btn-primary" })
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Id
+            </th>
+            <th>
+                Calle
+            </th>
+            <th>
+                Numero
+            </th>
+            <th>
+                Ciudad
+            </th>
+            <th>
+                Provincia
+            </th>
+            <th>
+                Pais
+            </th>
+            <th>
+                Codigo Postal
+            </th>
+            <th>
+                Tipo Direccion
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.calle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.numero)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ciudad)
+            </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.provincia)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.pais)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.codigo_postal)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TipoDireccion)
+                </td>
+            <td>
+                @Html.ActionLink("Editar", "Edit", new {  id=item.Id  }) |
+                @Html.ActionLink("Detalles", "Details", new {  id=item.Id  }) 
+                </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<br />
+@Html.ActionLink("Clientes", "Index","Clientes")

@@ -27,7 +27,7 @@ namespace CuentasPorCobrar.Models
                 conexion = null;
                 ObtenerConexion();
         }
-
+        //Validar conexiones
         public Operacion validaConexion()
         {
             Operacion operacion = new Operacion();
@@ -52,15 +52,15 @@ namespace CuentasPorCobrar.Models
                             String permisos = reader.GetString(0);
                             if (permisos.Contains("cuentasxcobrar") || usuario.user=="root")
                             {
-                                if (!permisos.ToUpper().Contains("SELECT"))
+                                operacion.esValida = permisos.ToUpper().Contains("SELECT");
+                                                    
+                                if (!operacion.esValida)
                                 {
                                     operacion.Mensaje = "Usuario no tiene permisos para realizar operaciones";
-                                    operacion.esValida = false;
                                 }
                                 else
                                 {
                                     operacion.Mensaje = "";
-                                    operacion.esValida = true;
                                     break;
                                 }
                                 
@@ -78,14 +78,12 @@ namespace CuentasPorCobrar.Models
                     if(ex.Number == 1044)
                     {
                         operacion.esValida = false;
-                        operacion.Mensaje = "Usuario no tiene permisos al sistema";
+                        operacion.Mensaje = "Usuario no tiene permisos para realizar operaciones en el sistema";
                     }
                 }
             }
             return operacion;
         }
-
-
 
         public static MySqlConnection ObtenerConexion()
         {
@@ -145,7 +143,7 @@ namespace CuentasPorCobrar.Models
                     // Obtener los valores de las columnas de la tabla
                     cliente.Id = reader.GetInt16(0);
                     cliente.tipo_identificacion = reader.GetInt16(1);
-                    cliente.Direccion = reader.GetInt16(2);
+                    //cliente.Direccion = reader.GetInt16(2);
                     cliente.estado_civil = reader.GetInt16(3);
                     cliente.genero = reader.GetInt16(4);
                     cliente.num_identificacion = reader.GetString(5);
@@ -183,6 +181,7 @@ namespace CuentasPorCobrar.Models
             return retorno;
         }
 
+        //Listar Clientes
         public Operacion GetClientesList()
         {
             Operacion retorno = new Operacion();
@@ -288,7 +287,7 @@ namespace CuentasPorCobrar.Models
                     // Obtener los valores de las columnas de la tabla
                     cliente.Id = reader.GetInt16(0);
                     cliente.tipo_identificacion = reader.GetInt16(1);
-                    cliente.Direccion = reader.GetInt16(2);
+                    //cliente.Direccion = reader.GetInt16(2);
                     cliente.estado_civil = reader.GetInt16(3);
                     cliente.genero = reader.GetInt16(4);
                     cliente.num_identificacion = reader.GetString(5);
@@ -413,10 +412,9 @@ namespace CuentasPorCobrar.Models
                 query.Append("UPDATE clientes SET  ");
                 query.Append(string.Format("clienteID = {0} ,                              ", cliente.Id));
                 query.Append(string.Format("tipo_identificacionId = {0} ,                  ", cliente.tipo_identificacion));
-                query.Append(string.Format("direccionId = {0} ,                            ", cliente.Direccion));
                 query.Append(string.Format("estado_civilId = {0} ,                         ", cliente.estado_civil));
                 query.Append(string.Format("generoId = {0} ,                               ", cliente.genero));
-                query.Append(string.Format("num_identificacion = {0} ,                     ", cliente.num_identificacion));
+                query.Append(string.Format("num_identificacion = '{0}' ,                     ", cliente.num_identificacion));
                 query.Append(string.Format("p_nombre = '{0}' ,                             ", cliente.Nombres));
                 query.Append(string.Format("p_apellido = '{0}' ,                           ", cliente.Apellidos));
                 query.Append(string.Format("fecha_nacimiento = '{0}' ,                     ", cliente.fecha_nacimiento));
@@ -467,7 +465,7 @@ namespace CuentasPorCobrar.Models
                 query.Append("INSERT INTO clientes                        ");
                 query.Append("(clienteID,                                 ");
                 query.Append("tipo_identificacionId,                      ");
-                query.Append("direccionId,                                ");
+                //query.Append("direccionId,                                ");
                 query.Append("estado_civilId,                             ");
                 query.Append("generoId,                                   ");
                 query.Append("num_identificacion,                         ");
@@ -481,7 +479,7 @@ namespace CuentasPorCobrar.Models
                 query.Append("VALUES                                      ");
                 query.Append(string.Format("({0} ,    ","null"));
                 query.Append(string.Format("{0} ,     ", cliente.tipo_identificacion));
-                query.Append(string.Format("{0} ,     ", cliente.Direccion));
+                //query.Append(string.Format("{0} ,     ", cliente.Direccion));
                 query.Append(string.Format("{0} ,     ", cliente.estado_civil));
                 query.Append(string.Format("{0} ,     ", cliente.genero));
                 query.Append(string.Format("'{0}' ,   ", cliente.num_identificacion));
@@ -604,6 +602,54 @@ namespace CuentasPorCobrar.Models
             return tipos;
         }
 
+        // Función para obtener tipos de direccion
+        public List<TipoDireccion> GetTiposDireccion()
+        {
+            List<TipoDireccion> tipos = new List<TipoDireccion>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT * FROM tipo_direccion";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    TipoDireccion tipoDireccion = new TipoDireccion();
+                    // Obtener los valores de las columnas de la tabla
+                    tipoDireccion.Id = reader.GetInt16(0);
+                    tipoDireccion.Nombre = reader.GetString(1);
+
+                    tipos.Add(tipoDireccion);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return tipos;
+        }
+
         // Función para obtener genero
         public List<Genero> GetGenero()
         {
@@ -700,7 +746,53 @@ namespace CuentasPorCobrar.Models
             return estados;
         }
 
+        // Función para obtener Cargos
+        public List<Cargo> GetCargo()
+        {
+            List<Cargo> cargos = new List<Cargo>();
 
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT * FROM cargo";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    Cargo cargo = new Cargo();
+                    // Obtener los valores de las columnas de la tabla
+                    cargo.Id = reader.GetInt16(0);
+                    cargo.nombre_cargo = reader.GetString(1);
+
+                    cargos.Add(cargo);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return cargos;
+        }
 
         public List<Direccion> GetDireccionesPorCliente(int clienteID)
         {
@@ -761,13 +853,9 @@ namespace CuentasPorCobrar.Models
         }
 
 
-
-        //*************************************************************************//
-
-        // funciones para Empleados
-        public List<Empleado> GetEmpleados()
+        public Direccion GetDireccion(int id)
         {
-            List<Empleado> Empleado = new List<Empleado>();
+            Direccion direccion = new Direccion();
 
             MySqlConnection connection = ObtenerConexion();
 
@@ -777,7 +865,10 @@ namespace CuentasPorCobrar.Models
                 connection.Open();
 
                 // Crear la consulta SQL
-                string sql = "SELECT empleadoID, p_nombre, correo FROM empleados";
+                string sql = "SELECT direccionId, calle, numero, ciudad, provincia, pais, codigo_postal, td.nom_tipDireccion, d.clienteId FROM direccion d " +
+                    "INNER JOIN tipo_direccion td " +
+                    "ON td.tipo_direccionId = d.tipoDireccionId " +
+                    "WHERE d.direccionId = " + id + " ";
 
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(sql, connection);
@@ -788,13 +879,18 @@ namespace CuentasPorCobrar.Models
                 // Recorrer los resultados de la consulta
                 while (reader.Read())
                 {
-                    Empleado empleado = new Empleado();
+                    
                     // Obtener los valores de las columnas de la tabla
-                  empleado.Id = reader.GetInt16(0);
-                  empleado.Nombre = reader.GetString(1);
-                  empleado.email = reader.GetString(2);
+                    direccion.Id = reader.GetInt16(0);
+                    direccion.calle = reader.GetString(1);
+                    direccion.numero = reader.GetInt32(2);
+                    direccion.ciudad = reader.GetString(3);
+                    direccion.provincia = reader.GetString(4);
+                    direccion.pais = reader.GetString(5);
+                    direccion.codigo_postal = reader.GetString(6);
+                    direccion.TipoDireccion = reader.GetString(7);
+                    direccion.clienteId = reader.GetInt32(8);
 
-                    Empleado.Add(empleado);
                     // ...
                 }
 
@@ -810,12 +906,537 @@ namespace CuentasPorCobrar.Models
             // Cerrar la conexión
             connection.Close();
 
-            return Empleado;
+            return direccion;
         }
 
-//===============Solicitudes====================================//
+        public Direccion GetDireccionEdit(int id)
+        {
+            Direccion direccion = new Direccion();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT direccionId, calle, numero, ciudad, provincia, pais, codigo_postal, d.tipoDireccionId, d.clienteId FROM direccion d " +
+                    "WHERE d.direccionId = " + id + " ";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+
+                    // Obtener los valores de las columnas de la tabla
+                    direccion.Id = reader.GetInt16(0);
+                    direccion.calle = reader.GetString(1);
+                    direccion.numero = reader.GetInt32(2);
+                    direccion.ciudad = reader.GetString(3);
+                    direccion.provincia = reader.GetString(4);
+                    direccion.pais = reader.GetString(5);
+                    direccion.codigo_postal = reader.GetString(6);
+                    direccion.TipoDireccion = reader.GetString(7);
+                    direccion.clienteId = reader.GetInt32(8);
+
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return direccion;
+        }
+
+
+        //*************************************************************************//
+
+
+        //Listar Empleados
+        public Operacion GetEmpleadoList()
+        {
+            Operacion retorno = new Operacion();
+            List<EmpleadoList> empleados = new List<EmpleadoList>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT distinct e.empleadoID, ti.nom_tipoIdentificacion, ec.nombre, " +
+                    "g.nom_genero,c.nombre_cargo, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, " +
+                    "telefono, correo " +
+                    "FROM empleados e " +
+                    "inner join tipo_identificacion ti " +
+                    "on e.tipo_identificacionId = ti.tipo_identificacionId " +
+                    "inner join genero g " +
+                    "on e.generoId = g.generoId " +
+                    "inner join estado_civil ec " +
+                    "on e.estado_civilId = ec.estado_civilId " +
+                    "inner join cargo c " +
+                    "on c.cargoId = e.cargoId " +
+                    "WHERE estado_empleadoId = 1 ORDER BY empleadoID DESC";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    EmpleadoList empleado = new EmpleadoList();
+                    // Obtener los valores de las columnas de la tabla
+                    empleado.Id = reader.GetInt16(0);
+                    empleado.tipo_identificacion = reader.GetString(1);
+                    empleado.estado_civil = reader.GetString(2);
+                    empleado.genero = reader.GetString(3);
+                    empleado.cargo = reader.GetString(4);
+                    empleado.num_identificacion = reader.GetString(5);
+                    empleado.Nombres = reader.GetString(6);
+                    empleado.Apellidos = reader.GetString(7);
+                    empleado.fecha_nacimiento = reader.GetDateTime(8).ToString("yyyy-MM-dd");
+                    empleado.telefono = reader.GetString(9);
+                    empleado.Email = reader.GetString(10);
+
+
+
+                    empleados.Add(empleado);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+                retorno.esValida = true;
+
+            }
+            catch (MySqlException ex)
+            {
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar consultas";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+            retorno.resultado = empleados;
+            return retorno;
+        }
+
+        //Detalles Empleados
+        public Operacion GetDetalleEmpleadoList(int id)
+        {
+            Operacion retorno = new Operacion();
+            EmpleadoList empleado = new EmpleadoList();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT distinct e.empleadoID, ti.nom_tipoIdentificacion, ec.nombre, " +
+                    "g.nom_genero,c.nombre_cargo, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, " +
+                    "telefono, correo " +
+                    "FROM empleados e " +
+                    "inner join tipo_identificacion ti " +
+                    "on e.tipo_identificacionId = ti.tipo_identificacionId " +
+                    "inner join genero g " +
+                    "on e.generoId = g.generoId " +
+                    "inner join estado_civil ec " +
+                    "on e.estado_civilId = ec.estado_civilId " +
+                    "inner join cargo c " +
+                    "on c.cargoId = e.cargoId " +
+                    "WHERE empleadoID =" + id;
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+
+                    // Obtener los valores de las columnas de la tabla
+                    empleado.Id = reader.GetInt16(0);
+                    empleado.tipo_identificacion = reader.GetString(1);
+                    empleado.estado_civil = reader.GetString(2);
+                    empleado.genero = reader.GetString(3);
+                    empleado.cargo = reader.GetString(4);
+                    empleado.num_identificacion = reader.GetString(5);
+                    empleado.Nombres = reader.GetString(6);
+                    empleado.Apellidos = reader.GetString(7);
+                    empleado.fecha_nacimiento = reader.GetDateTime(8).ToString("yyyy-MM-dd");
+                    empleado.telefono = reader.GetString(9);
+                    empleado.Email = reader.GetString(10);
+
+
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar consultas";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+            retorno.resultado = empleado;
+            return retorno;
+        }
+
+        public Operacion GetDetalleEmpleado(int id)
+        {
+            Operacion retorno = new Operacion();
+            Empleado empleado = new Empleado();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT empleadoID, tipo_identificacionId, estado_civilId,generoId,cargoId,num_identificacion,p_nombre,p_apellido,fecha_nacimiento,telefono,correo FROM empleados WHERE empleadoID =" + id;
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+
+                    // Obtener los valores de las columnas de la tabla
+                    empleado.Id = reader.GetInt16(0);
+                    empleado.tipo_identificacionId = reader.GetInt16(1);
+                    empleado.estado_civilId = reader.GetInt16(2);
+                    empleado.generoId = reader.GetInt16(3);
+                    empleado.cargoId = reader.GetInt16(4);
+                    empleado.num_identificacion = reader.GetString(5);
+                    empleado.Nombres = reader.GetString(6);
+                    empleado.Apellidos = reader.GetString(7);
+                    empleado.fecha_nacimiento = reader.GetDateTime(8).ToString("yyyy-MM-dd");
+                    empleado.telefono = reader.GetString(9);
+                    empleado.Email = reader.GetString(10);
+
+
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar consultas";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+            retorno.resultado = empleado;
+            return retorno;
+        }
+
+        //Actualizar Empleados
+        public Operacion UpdateEmpleado(Empleado empleado)
+        {
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("UPDATE empleados SET  ");
+                query.Append(string.Format("empleadoID = {0} ,                              ", empleado.Id));
+                query.Append(string.Format("tipo_identificacionId = {0} ,                  ", empleado.tipo_identificacionId));
+                query.Append(string.Format("estado_civilId = {0} ,                         ", empleado.estado_civilId));
+                query.Append(string.Format("generoId = {0} ,                               ", empleado.generoId));
+                query.Append(string.Format("cargoId = {0} ,                               ", empleado.cargoId));
+                query.Append(string.Format("num_identificacion = {0} ,                     ", empleado.num_identificacion));
+                query.Append(string.Format("p_nombre = '{0}' ,                             ", empleado.Nombres));
+                query.Append(string.Format("p_apellido = '{0}' ,                           ", empleado.Apellidos));
+                query.Append(string.Format("fecha_nacimiento = '{0}' ,                     ", empleado.fecha_nacimiento));
+                query.Append(string.Format("telefono = {0} ,                               ", empleado.telefono));
+                query.Append(string.Format("correo = '{0}'                               ", empleado.Email));
+                query.Append(string.Format("WHERE empleadoID = {0}                        ", empleado.Id));
+                // Crear un objeto MySqlCommands
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno.esValida = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        //Función para Eliminar Empleados
+        public Operacion DeleteEmpleados(int id)
+        {
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                //query.Append("DELETE FROM CLIENTES WHERE  clienteID= "+id);
+                query.Append("update  empleados set estado_empleadoId = 2 WHERE  empleadoID = " + id);
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno.esValida = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        //Función para Crear Empleados
+        public Operacion CreateEmpleados(Empleado empleado)
+        {
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("INSERT INTO empleados                  ");
+                query.Append("(empleadoID,                           ");
+                query.Append("tipo_identificacionId,                 ");
+                query.Append("estado_civilId,                        ");
+                query.Append("generoId,                              ");
+                query.Append("cargoId,                               ");
+                query.Append("num_identificacion,                    ");
+                query.Append("p_nombre,                              ");
+                query.Append("p_apellido,                            ");
+                query.Append("fecha_nacimiento,                      ");
+                query.Append("telefono,                              ");
+                query.Append("correo, estado_empleadoId)             ");
+                query.Append("VALUES                                 ");
+                query.Append(string.Format("({0}, ",    "null"));
+                query.Append(string.Format("{0},   	 ", empleado.tipo_identificacionId));
+                query.Append(string.Format("{0},     ", empleado.estado_civilId));
+                query.Append(string.Format("{0},     ", empleado.generoId));
+                query.Append(string.Format("{0},     ", empleado.cargoId));
+                query.Append(string.Format("{0},     ", empleado.num_identificacion));
+                query.Append(string.Format("'{0}',   ", empleado.Nombres));
+                query.Append(string.Format("'{0}',   ", empleado.Apellidos));
+                query.Append(string.Format("'{0}',   ", empleado.fecha_nacimiento));
+                query.Append(string.Format("'{0}',   ", empleado.telefono));
+                query.Append(string.Format("'{0}',{1})   ", empleado.Email, empleado.estado_RegistroEmpleado));
+                
+                // Crear un objeto MySqlCommand
+                                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno.esValida = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        //Función para Crear Direcciones
+        public Operacion CreateDirecciones(Direccion direccion)
+        {
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("INSERT INTO direccion                  ");
+                query.Append("VALUES                                 ");
+                query.Append(string.Format("(null, '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', {6}, {7})", 
+                    direccion. calle,
+                    direccion. numero ,
+                    direccion. ciudad ,
+                    direccion. provincia ,
+                    direccion. pais,
+                    direccion. codigo_postal ,
+                    direccion.clienteId ,
+                    direccion. TipoDireccion));
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno.esValida = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+
+        //Función para actualizar Direcciones
+        public Operacion UpdateDirecciones(Direccion direccion)
+        {
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("Update  direccion                  ");
+                query.AppendFormat("SET calle =  '{0}' , ",   direccion.calle);
+                query.AppendFormat(" numero =  '{0}' , ",   direccion.numero);
+                query.AppendFormat(" ciudad =  '{0}' , ",   direccion.ciudad);
+                query.AppendFormat(" provincia =  '{0}' , ",   direccion.provincia);
+                query.AppendFormat(" pais =  '{0}' , ",   direccion.pais);
+                query.AppendFormat(" codigo_postal =  '{0}' , ",   direccion.codigo_postal);
+                query.AppendFormat(" tipoDireccionId =  {0}  ",   direccion.TipoDireccion);
+                query.AppendFormat(" where  direccionId =  {0}  ", direccion.Id);
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno.esValida = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                retorno.esValida = false;
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+
+        //===============Solicitudes====================================//
         // funciones para lISTAR Solicitud
-        public List<Solicitud> GetSolicitud()
+        public List<Solicitud> GetSolicitud(int estadoId)
         {
             List<Solicitud> Solicitud = new List<Solicitud>();
 
@@ -827,7 +1448,7 @@ namespace CuentasPorCobrar.Models
                 connection.Open();
 
                 // Crear la consulta SQL
-                string sql = "SELECT solicitud_ID, fecha_solicitud, monto_prestamo, clienteID, estadoId FROM solicitud_prestamo WHERE estadoId = 2 ORDER BY solicitud_ID DESC";
+                string sql = "SELECT solicitud_ID, fecha_solicitud, monto_prestamo, clienteID, estadoId FROM solicitud_prestamo WHERE estadoId = "+ estadoId + " ORDER BY solicitud_ID DESC";
 
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(sql, connection);
@@ -961,7 +1582,7 @@ namespace CuentasPorCobrar.Models
         }
 
         //Función para ELIMINAR solicitud
-        public Operacion DeleteSolicitud(int id)
+        public Operacion UpdateEstadoSolicitud(int id, int estado)
         {
             Operacion retorno = new cuentasPorCobrar.Models.Operacion();
 
@@ -975,7 +1596,7 @@ namespace CuentasPorCobrar.Models
                 // Crear la consulta SQL
 
                 //query.Append("DELETE FROM prestamo WHERE  IDprestamo= "+id);
-                query.Append("update  solicitud_prestamo set estadoId = 1 WHERE  solicitud_ID = " + id);
+                query.AppendFormat("update  solicitud_prestamo set estadoId = {0} WHERE  solicitud_ID ={1} " , estado, id);
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(query.ToString(), connection);
 
@@ -1221,7 +1842,7 @@ namespace CuentasPorCobrar.Models
         }
 
         // funcion para listar solicitudes para los pagos
-        public List<SolicitudPagos> getSolicitudesPagos()
+        public List<SolicitudPagos> getSolicitudesPagosParaPrestamos()
         {
             List<SolicitudPagos> solicitudes = new List<SolicitudPagos>();
             StringBuilder query = new StringBuilder();
@@ -1232,13 +1853,67 @@ namespace CuentasPorCobrar.Models
                 // Abrir la conexión
                 connection.Open();
                 query.Append("select solicitud_ID, ");
-                query.Append("concat(c.p_nombre, ' ', c.s_nombre, ' ',c.p_apellido, ' ', c.s_apellido) Nombre   ");
+                query.Append("concat(c.p_nombre, ' ',c.p_apellido) Nombre,monto_prestamo   ");
                 query.Append("from solicitud_prestamo s ");
                 query.Append("inner join clientes c ");
                 query.Append("on s.clienteID = c.clienteID ");
-                query.Append("where estadoId = 1 ");
+                query.Append("where estadoId = 3 ");
                 // Crear la consulta SQL
                 
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    SolicitudPagos solicitud = new SolicitudPagos();
+                    // Obtener los valores de las columnas de la tabla
+                    solicitud.Id = reader.GetInt16(0);
+                    solicitud.nombreCliente = String.Format("{0}, Monto: {1}", reader.GetString(1), reader.GetString(2));
+                    solicitudes.Add(solicitud);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return solicitudes;
+        }
+
+
+        // funcion para listar solicitudes para los pagos
+        public List<SolicitudPagos> getSolicitudesPagos()
+        {
+            List<SolicitudPagos> solicitudes = new List<SolicitudPagos>();
+            StringBuilder query = new StringBuilder();
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+                query.Append("select distinct s.solicitud_ID, ");
+                query.Append("concat(c.p_nombre, ' ',c.p_apellido) Nombre,monto_prestamo   ");
+                query.Append("from solicitud_prestamo s ");
+                query.Append("inner join clientes c ");
+                query.Append("on s.clienteID = c.clienteID ");
+                query.Append("inner join prestamo p ");
+                query.Append("on p.solicitud_ID = s.solicitud_ID ");
+                query.Append("where estadoId = 4 and p.estado_prestamoId = 2 ");
+                // Crear la consulta SQL
+
                 // Crear un objeto MySqlCommand
                 MySqlCommand command = new MySqlCommand(query.ToString(), connection);
 
@@ -1270,6 +1945,47 @@ namespace CuentasPorCobrar.Models
 
             return solicitudes;
         }
+        public double getMontoSolicitud(int idSolicitud)
+        {
+            double retorno = 0.0;
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT monto_prestamo FROM solicitud_prestamo where solicitud_ID="+ idSolicitud;
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    retorno = reader.GetDouble(0);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
         // funciones para actualizar Prestamos
         public Operacion UpdatePrestamos(Prestamo prestamo)
         {
@@ -1286,7 +2002,6 @@ namespace CuentasPorCobrar.Models
                
                 query.Append("UPDATE prestamo SET ");
                 query.Append(string.Format("IDprestamo = {0} ,              ", prestamo.Id));
-                query.Append(string.Format("IdComite = {0} ,                  ", prestamo.IdComite));
                 query.Append(string.Format("Capital = {0} ,                    ",prestamo.Capital));
                 query.Append(string.Format("Tasa_interes = {0} ,          ",prestamo.Tasa_interes));
                 query.Append(string.Format("Tipo_interes = '{0}' ,          ",prestamo.Tipo_interes));
@@ -1703,5 +2418,242 @@ namespace CuentasPorCobrar.Models
 
             return cargos;
         }
+
+
+        //**************************************Comites**********************************//
+
+        //Función para Listar Comites
+        public List<Comite> GetComite()
+        {
+            List<Comite> comites = new List<Comite>();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT IdComite,solicitud_ID,empleadoID,estado FROM comite_prestamo where estado='en revisión' ORDER BY IdComite DESC";
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    Comite comite = new Comite();
+                    // Obtener los valores de las columnas de la tabla
+                    comite.Id = reader.GetInt16(0);
+                    comite.empleadoId = reader.GetInt16(1);
+                    comite.SolicitudId = reader.GetInt16(2);
+                    comite.estado_solicitud = reader.GetString(3);
+
+                    comites.Add(comite);
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return comites;
+        }
+
+        //Función Detalles para Comite
+        public Comite GetDetalleComite(int id)
+        {
+            Comite comites = new Comite();
+
+            MySqlConnection connection = ObtenerConexion();
+
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+                string sql = "SELECT IdComite,solicitud_ID,empleadoID,estado FROM comite_prestamo where IdComite" + id;
+
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(sql, connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+
+                    // Obtener los valores de las columnas de la tabla
+                    comites.Id = reader.GetInt16(0);
+                    comites.empleadoId = reader.GetInt16(1);
+                    comites.SolicitudId = reader.GetInt16(2);
+                    comites.estado_solicitud = reader.GetString(3);
+
+
+
+                    // ...
+                }
+
+                // Cerrar el MySqlDataReader
+                reader.Close();
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return comites;
+        }
+
+        //Funciones para Actualizar Comite
+        public Operacion UpdateComite(Comite comite)
+        {
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("UPDATE comite_prestamo SET ");
+                query.Append(string.Format("IdComite = {0} ,	      ", comite.Id));
+                query.Append(string.Format("solicitud_ID = {0} ,    ", comite.SolicitudId));
+                query.Append(string.Format("empleadoID = {0} ,  ", comite.empleadoId));
+                query.Append(string.Format("estado = '{0}'           ", comite.estado_solicitud));
+                query.Append(string.Format("WHERE IdComite = {0};  ", comite.Id));
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno.esValida = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+
+        // funciones para Crear Comites
+        public Operacion CreateComite(Comite comite)
+        {
+            Operacion retorno = new cuentasPorCobrar.Models.Operacion();
+
+            MySqlConnection connection = ObtenerConexion();
+            StringBuilder query = new StringBuilder();
+            try
+            {
+                // Abrir la conexión
+                connection.Open();
+
+                // Crear la consulta SQL
+
+                query.Append("INSERT INTO comite_prestamo ");
+                query.Append("(IdComite, ");
+                query.Append("solicitud_ID, ");
+                query.Append("empleadoID,        ");
+                query.Append("estado )  ");
+                query.Append("VALUES          ");
+                query.Append(string.Format("({0} ,    ", "null"));
+                query.Append(string.Format("{0} ,       ", comite.SolicitudId));
+                query.Append(string.Format("{0} ,        ", comite.empleadoId));
+                query.Append(string.Format("'{0}' ,   ", comite.estado_solicitud));
+                // Crear un objeto MySqlCommand
+                MySqlCommand command = new MySqlCommand(query.ToString(), connection);
+
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                int afectados = command.ExecuteNonQuery();
+                retorno.esValida = afectados > 0;
+
+
+            }
+            catch (MySqlException ex)
+            {
+                if (ex.Number == 1142)
+                {
+                    retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+            }
+
+            // Cerrar la conexión
+            connection.Close();
+
+            return retorno;
+        }
+        /*Comite*/
+        public Operacion perteneceAComite(String user, int comite)
+        {
+            Operacion operacion = new Operacion();
+            operacion.resultado = false;
+            try
+            {
+                String sql = String.Format( "SELECT usuario FROM comiteuser where cimiteId = {0} and usuario='{1}'",comite, user);
+                MySqlConnection connection = ObtenerConexion();
+                connection.Open();
+                // para la consulta
+                MySqlCommand command = new MySqlCommand(sql, connection);
+                // Ejecutar la consulta y obtener un objeto MySqlDataReader
+                MySqlDataReader reader = command.ExecuteReader();
+                // Recorrer los resultados de la consulta
+                while (reader.Read())
+                {
+                    // Obtener los valores de las columnas de la tabla
+                    operacion.resultado = true;
+                    break;
+                    // ...
+                }
+                connection.Close();
+                // Cerrar el MySqlDataReader
+                reader.Close();
+            }
+            catch(MySqlException ex)
+            {
+                if (ex.Number == 1142)
+                {
+                    operacion.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
+                }
+            }
+            // Cerrar la conexión
+            
+            return operacion;
+        }
+
     }
+
+
+
+
+
 }

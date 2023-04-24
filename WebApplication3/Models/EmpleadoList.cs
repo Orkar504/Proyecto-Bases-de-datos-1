@@ -2,20 +2,20 @@
 
 namespace CuentasPorCobrar.Models
 {
-    public class Empleado
+    public class EmpleadoList
     {
         [Required]
         public int Id { get; set; }
         [Required]
-        public int tipo_identificacionId { get; set; }
+        public String tipo_identificacion { get; set; }
         [Required]
         //public String Direccion { get; set; }
         //[Required]
-        public int estado_civilId { get; set; }
+        public String estado_civil { get; set; }
         [Required]
-        public int generoId { get; set; }
+        public String genero { get; set; }
         [Required]
-        public int cargoId { get; set; }
+        public String cargo { get; set; }
         [Required]
         public String num_identificacion { get; set; }
         [Required]
@@ -26,12 +26,12 @@ namespace CuentasPorCobrar.Models
         [Required]
         public String fecha_nacimiento { get; set; }
         [Required]
-        // [MaxLength(8, ErrorMessage = "Este campo solo acepta 8 caracteres")]
+       // [MaxLength(8, ErrorMessage = "Este campo solo acepta 8 caracteres")]
         public String telefono { get; set; }
         [Required]
-        [EmailAddress]
         public string Email { get; set; }
         [Required]
         public int estado_RegistroEmpleado { get; set; }
-    }
+
+     }
 }

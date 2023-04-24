@@ -43,7 +43,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="fecha_pago" class="control-label"></label>
-                <input asp-for="fecha_pago" class="form-control" />
+                <input asp-for="fecha_pago" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
                 <span asp-validation-for="fecha_pago" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -72,7 +72,7 @@
                     // VACIAMOS EL DropDownList
                     $("#IDprestamo").empty();
                     // AÑADIMOS UN NUEVO label CON EL NOMBRE DEL ELEMENTO SELECCIONADO
-                    $("#IDprestamo").append("<option value> -- Seleccionar prestamos de " + $("#clientes option:selected").text() + " --</option>")
+                    $("#IDprestamo").append("<option value>  Seleccionar prestamos de " + $("#clientes option:selected").text() + " </option>")
                     // CONSTRUIMOS EL DropDownList A PARTIR DEL RESULTADO Json (data)
                     $.each(data, function (index, row) {
                         $("#IDprestamo").append("<option value='" + row.id + "'>" + row.descripcion + "</option>")

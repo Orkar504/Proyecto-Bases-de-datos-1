@@ -4,6 +4,7 @@ namespace cuentasPorCobrar.Models
 {
     public class Pagos
     {
+        [Required]
         public int Id { get; set; }
         [Required]
         public int IDprestamo { get; set; }

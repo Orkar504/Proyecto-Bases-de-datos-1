@@ -14,7 +14,8 @@ namespace cuentasPorCobrar.Controllers
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
-            return View(proyectoContext.GetSolicitud());
+            TempData["userId"] = HttpContext.Request.Cookies["UserId"];
+            return View(proyectoContext.GetSolicitud(2));
         }
 
         // GET: SolicitudController/Details/5
@@ -83,28 +84,54 @@ namespace cuentasPorCobrar.Controllers
                 return View();
             }
         }
+        // 1 denegadas, 2 por aprobar, 3 aprobadas
 
         // GET: SolicitudController/Delete/5
         public ActionResult Delete(int id)
         {
             if (!HttpContext.Request.Cookies.ContainsKey("UserId"))
                 return Redirect("/Usuarios/Login");
+            TempData["id"] = id;
             return View(proyectoContext.GetDetalleSolicitud(id));  
         }
 
         // POST: SolicitudController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Denegar(int id, IFormCollection collection)
         {
             try
             {
-                Operacion operacion = proyectoContext.DeleteSolicitud(id);
+                String idStr = TempData["id"].ToString();
+                int idInt = Convert.ToInt32(idStr);
+                Operacion operacion = proyectoContext.UpdateEstadoSolicitud(idInt, 1);
                 if (!operacion.esValida)
                 {
                     TempData["OperacionError"] = operacion.Mensaje;
                 }
                 
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
+        }
+        // POST: SolicitudController/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Aprobar(int id, IFormCollection collection)
+        {
+            try
+            {
+                String idStr = TempData["id"].ToString();
+                int idInt = Convert.ToInt32(idStr);
+                Operacion operacion = proyectoContext.UpdateEstadoSolicitud(idInt, 3);
+                
+                if (!operacion.esValida)
+                {
+                    TempData["OperacionError"] = operacion.Mensaje;
+                }                
                 return RedirectToAction(nameof(Index));
             }
             catch

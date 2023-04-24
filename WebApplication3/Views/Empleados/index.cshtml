@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CuentasPorCobrar.Models.Empleado>
+﻿@model IEnumerable<CuentasPorCobrar.Models.EmpleadoList>
 
 @{
     ViewData["Title"] = "index";
@@ -7,20 +7,56 @@
 
 <h1>Empleados</h1>
 
+@if (TempData["OperacionError"] != null)
+{
+    var error = TempData["OperacionError"];
+    if (error.ToString() != "")
+    {
+        <p class="text-danger">@error</p>
+    }
+}
+
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-primary" asp-action="Create">Nuevo</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
+                Id
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Nombre)
+                Tipo de Identificación
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.email)
+                Estado Civil
+            </th>
+            <th>
+               Genero
+            </th>
+            <th>
+                Cargo
+            </th>
+            <th>
+                Numero de Identificación
+            </th>
+            <th>
+               Nombre
+            </th>
+            <th>
+                Apellido
+            </th>
+            <th>
+                Fecha de Nacimiento
+            </th>
+            <th>
+                Teléfono
+            </th>
+            <th>
+                Correo
+            </th>
+            <th>
+                
             </th>
             <th></th>
         </tr>
@@ -32,15 +68,40 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
+                @Html.DisplayFor(modelItem => item.tipo_identificacion)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.email)
+                @Html.DisplayFor(modelItem => item.estado_civil)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.DisplayFor(modelItem => item.genero)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.cargo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.num_identificacion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombres)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Apellidos)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.fecha_nacimiento)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.telefono)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            
+            <td>
+                @Html.ActionLink("Edit", "Edit", new {  id=item.Id  }) |
+                @Html.ActionLink("Details", "Details", new {  id=item.Id  }) |
+                @Html.ActionLink("Delete", "Delete", new {  id=item.Id  })
             </td>
         </tr>
 }
