@@ -81,7 +81,9 @@ namespace cuentasPorCobrar.Controllers
                     TempData["OperacionError"] = operacion.Mensaje;
                 }
                 Direccion dir = proyectoContext.GetDireccionEdit(id);
-                return Redirect("/Direccion/Index/" + dir.clienteId);
+                return Redirect("/"+proyectoContext.getSitio()+"/Direccion/Index/" + dir.clienteId);
+
+                
             }
             catch
             {

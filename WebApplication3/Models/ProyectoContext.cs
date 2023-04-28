@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using System.Drawing;
 using System.Text;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -11,6 +12,8 @@ namespace CuentasPorCobrar.Models
     {
         private static MySqlConnection conexion;
         private static Usuario usuario;
+        private static String sitio = ""; //Para hacer pruebas locales dejar vacia
+        //private static String sitio = "cuentasPorCobrar"; //Antes de publicar 
 
         public ProyectoContext()
         {
@@ -113,6 +116,35 @@ namespace CuentasPorCobrar.Models
             return conexion;
         }
 
+
+        public bool EscribirLogs(String linea, String operacion = "")
+        {
+            try
+            {
+                String mensajeFinal = String.Format("{1}:{2}:{0}", 
+                    linea, 
+                    DateTime.Now.ToString("HH:mm:ss"),
+                    operacion
+                    );
+                String ruta = "C:\\Logs\\cuentasPorCobrar\\";
+                string fileName = ruta+DateTime.Now.ToString("yyyy-MM-dd")+".txt";
+
+                // Crea el archivo y escribe el texto en él
+                using (StreamWriter writer = new StreamWriter(fileName, true))
+                {
+                    writer.WriteLine(mensajeFinal);
+
+                }
+            }
+            catch
+            {
+
+            }
+
+
+            return false;
+        }
+
 //**************************CLIENTES****************************************//
         // funciones LISTAR para cliente
         public Operacion GetClientes()
@@ -168,6 +200,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Listar Clientes");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -195,7 +228,7 @@ namespace CuentasPorCobrar.Models
                 connection.Open();
 
                 // Crear la consulta SQL
-                string sql = "SELECT distinct c.clienteID, ti.nom_tipoIdentificacion, '' dir, ec.nombre, g.nom_genero, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, telefono, correo, ocupacion, ingreso_mensual " +
+                string sql = "SELECT  distinct c.clienteID, ti.nom_tipoIdentificacion, '' dir, ec.nombre, g.nom_genero, num_identificacion, p_nombre, p_apellido, fecha_nacimiento, telefono, correo, ocupacion, ingreso_mensual " +
                     "FROM clientes c " +
                     "left join direccion d " +
                     "on c.clienteID = d.clienteId " +
@@ -245,6 +278,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Listar Clientes");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -309,6 +343,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Detalle Clientes");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -382,6 +417,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Detalle Clientes LIst");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -434,6 +470,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message);
                 retorno.esValida = false;
                 if (  ex.Number == 1142)
                 {
@@ -501,6 +538,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Actualizar Clientes");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -541,6 +579,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Eliminar Clientes");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -593,7 +632,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Obtener tipos de identificación");
             }
 
             // Cerrar la conexión
@@ -641,7 +680,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Obtener tipos de direccion");
             }
 
             // Cerrar la conexión
@@ -689,7 +728,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Obtener Genero");
             }
 
             // Cerrar la conexión
@@ -737,7 +776,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Obtener Estado civil");
             }
 
             // Cerrar la conexión
@@ -785,7 +824,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Obtener cargos");
             }
 
             // Cerrar la conexión
@@ -843,7 +882,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Obtener dirección por cliente");
             }
 
             // Cerrar la conexión
@@ -900,7 +939,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Obtener dirección");
             }
 
             // Cerrar la conexión
@@ -954,7 +993,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Editar dirección");
             }
 
             // Cerrar la conexión
@@ -1031,6 +1070,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Listar empleados List");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1105,6 +1145,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "GetDetalleEmpleadoList");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1166,6 +1207,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Detalles Empleado");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1217,6 +1259,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Actualizar empleado");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1258,6 +1301,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Eliminar empleado");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1321,6 +1365,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Crear empleados");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1371,6 +1416,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Crear direcciones");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1420,6 +1466,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message);
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1477,7 +1524,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Listar solicitud");
             }
 
             // Cerrar la conexión
@@ -1528,7 +1575,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Detalles solicitud");
             }
 
             // Cerrar la conexión
@@ -1568,6 +1615,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Actualizar solicitud");
                 retorno.esValida = false;
                 if (ex.Number == 1142)
                 {
@@ -1608,6 +1656,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Eliminar solicitud");
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -1655,6 +1704,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Crear solicitud");
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -1718,7 +1768,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Detalle Prestamo");
             }
 
             // Cerrar la conexión
@@ -1775,7 +1825,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Listar prestamos");
             }
 
             // Cerrar la conexión
@@ -1832,7 +1882,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Listar prestamos por solicitud");
             }
 
             // Cerrar la conexión
@@ -1883,7 +1933,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message,"Lisitar solicitudes de pagos para los prestamos");
             }
 
             // Cerrar la conexión
@@ -1937,7 +1987,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Listar solicitudes para los pagos");
             }
 
             // Cerrar la conexión
@@ -1978,7 +2028,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "getMontoSolicitud");
             }
 
             // Cerrar la conexión
@@ -2023,6 +2073,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Actualizar prestamos");
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -2062,6 +2113,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message);
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -2123,6 +2175,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Crear prestamos");
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -2180,7 +2233,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Listar pagos");
             }
 
             // Cerrar la conexión
@@ -2230,7 +2283,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Detalles pagos");
             }
 
             // Cerrar la conexión
@@ -2270,6 +2323,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Actualizar pagos");
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -2309,6 +2363,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Eliminar pagos");
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -2356,6 +2411,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message);
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -2410,7 +2466,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Listar cargos");
             }
 
             // Cerrar la conexión
@@ -2463,7 +2519,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Listar comites");
             }
 
             // Cerrar la conexión
@@ -2514,7 +2570,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                EscribirLogs(ex.Message, "Detalles comite");
             }
 
             // Cerrar la conexión
@@ -2554,6 +2610,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Actualizar comite");
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -2601,6 +2658,7 @@ namespace CuentasPorCobrar.Models
             }
             catch (MySqlException ex)
             {
+                EscribirLogs(ex.Message, "Crear comite");
                 if (ex.Number == 1142)
                 {
                     retorno.Mensaje = "Usuario no tiene permisos para realizar esta operacion";
@@ -2650,10 +2708,9 @@ namespace CuentasPorCobrar.Models
             return operacion;
         }
 
+        public String getSitio()
+        {
+            return sitio;
+        }
     }
-
-
-
-
-
 }

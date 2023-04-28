@@ -4,6 +4,7 @@ namespace cuentasPorCobrar.Models
 {
     public class Solicitud
     {
+        [Required]
         public int Id { get; set; }
         [Required]
         public String fecha_solicitud { get; set; }
